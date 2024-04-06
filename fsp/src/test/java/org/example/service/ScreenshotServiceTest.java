@@ -16,4 +16,9 @@ public class ScreenshotServiceTest extends TestCase {
     public void testProcessScreenshot() {
         ScreenshotService.processScreenshot(SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
     }
+
+    public void testTakeAndProcessScreenshot() {
+        testTakeScreenshot();
+        testProcessScreenshot();
+    }
 }

@@ -100,14 +100,13 @@ public class ScreenshotService {
                     g2d.drawString(dayOfWeek, x, heightHelp);
                     g2d.drawString(date, x, heightHelp + 25);
                     x += (imageWidth / 5);
-                    int plusDays = 1;
-                    if (DayOfWeek.FRIDAY.equals(currentDate.getDayOfWeek())) {
-                        plusDays = 3;
+
+                    currentDate = currentDate.plusDays(1);
+                    while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                            currentDate.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                            DateFileService.forexOffDays.contains(currentDate)) {
+                        currentDate = currentDate.plusDays(1);
                     }
-                    if (DayOfWeek.SATURDAY.equals(currentDate.getDayOfWeek())) {
-                        plusDays = 2;
-                    }
-                    currentDate = currentDate.plusDays(plusDays);
                 }
 
                 g2d.dispose(); // Dispose the graphics object
@@ -125,11 +124,21 @@ public class ScreenshotService {
 
     private static LocalDate determineStartDate() {
         App.START_DATE = DateFileService.getDateFromFile();
-        long minusDays = 6;
-        if (DayOfWeek.FRIDAY.equals(App.START_DATE.getDayOfWeek())) {
-            minusDays = 4;
+        if (App.START_DATE == null) {
+            throw new RuntimeException("An error occurred while trying to determine the start date. App.START_DATE is null!");
         }
-        App.START_DATE = App.START_DATE.minusDays(minusDays);
+        // Subtract 5 days from the start date
+        for (int i = 0; i < 5; i++) {
+            App.START_DATE = App.START_DATE.minusDays(1);
+
+            // Skip Saturdays, Sundays, and off days
+            while (App.START_DATE.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                    App.START_DATE.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                    DateFileService.forexOffDays.contains(App.START_DATE)) {
+                App.START_DATE = App.START_DATE.minusDays(1);
+            }
+        }
+
         System.out.println("START_DATE: " + App.START_DATE);
         return App.START_DATE;
     }
