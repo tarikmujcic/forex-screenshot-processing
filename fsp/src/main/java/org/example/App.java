@@ -2,6 +2,7 @@
 package org.example;
 
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
+import org.example.enums.ForexChartType;
 import org.example.service.KeyListenerService;
 import org.example.service.KeyPressSimulationService;
 import org.example.service.ScreenshotService;
@@ -31,12 +32,15 @@ public class App {
 
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
+    public static ForexChartType forexChartType = ForexChartType.HOURLY;
+
     public static void main(String[] args) throws InterruptedException {
         KeyListenerService.initializeGlobalKeyListener(NativeKeyEvent.VC_ENTER);
         Thread.sleep(5000); // Wait for 5s at the start
 
+        int numberOfPresses = forexChartType == ForexChartType.HOURLY ? 23 : 1;
         while (true) {
-            KeyPressSimulationService.simulateKeyPressF12(23, 2000);
+            KeyPressSimulationService.simulateKeyPressF12(numberOfPresses, 2000);
             System.out.println("Hit enter key to process the screenshot");
             while (!IS_TRIGGER_KEY_PRESSED) {
                 try {

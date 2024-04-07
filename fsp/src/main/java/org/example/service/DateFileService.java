@@ -1,5 +1,7 @@
 package org.example.service;
 
+import org.example.App;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -14,6 +16,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DateFileService {
 
@@ -61,6 +64,8 @@ public class DateFileService {
         return null;
     }
 
+
+
     private static LocalDate parseDateFromFile(String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(dateString, formatter);
@@ -89,5 +94,42 @@ public class DateFileService {
         } catch (IOException e) {
             throw new RuntimeException("Error reading file: " + FOREX_DAYS_OFF_FILE_NAME, e);
         }
+    }
+
+    /**
+     * Used for HOURLY
+     */
+    public static LocalDate determineStartDate() {
+        App.START_DATE = DateFileService.getDateFromFile();
+        if (App.START_DATE == null) {
+            throw new RuntimeException("An error occurred while trying to determine the start date. App.START_DATE is null!");
+        }
+        // Subtract 5 days from the start date
+        for (int i = 0; i < 5; i++) {
+            App.START_DATE = App.START_DATE.minusDays(1);
+
+            // Skip Saturdays, Sundays, and off days
+            while (App.START_DATE.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                    App.START_DATE.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                    DateFileService.forexOffDays.contains(App.START_DATE)) {
+                App.START_DATE = App.START_DATE.minusDays(1);
+            }
+        }
+
+        System.out.println("START_DATE: " + App.START_DATE);
+        return App.START_DATE;
+    }
+
+    /**
+     * Used for HOURLY
+     */
+    public static String determineFileName() {
+        String startDateFormatted = determineStartDate().format(DateTimeFormatter.ofPattern("MM-dd"));
+        System.out.println("startDateFormatted: " + startDateFormatted);
+        String endDateFormatted = Objects.requireNonNull(DateFileService.getDateFromFile()).format(DateTimeFormatter.ofPattern("MM-dd"));
+        String yearShort = String.valueOf(App.START_DATE.getYear()).substring(2); // Get last two digits of the year
+        String outputFileName = startDateFormatted + "To" + endDateFormatted + "-" + yearShort + ".png";
+        System.out.println("outputFileName: " + outputFileName);
+        return outputFileName;
     }
 }

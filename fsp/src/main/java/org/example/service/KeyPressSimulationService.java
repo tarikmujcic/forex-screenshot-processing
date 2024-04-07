@@ -6,6 +6,11 @@ import java.awt.event.KeyEvent;
 
 public class KeyPressSimulationService {
 
+    /**
+     * Simulates pressing F12 key 'numberOfPresses' times and before simulating makes a delay equal to the passed in parameter.
+     * @param numberOfPresses How many times does the F12 key be simulated
+     * @param delay How much of a delay is needed before it starts simulating key presses
+     */
     public static void simulateKeyPressF12(int numberOfPresses, int delay) {
         try {
             if (delay != 0) {
