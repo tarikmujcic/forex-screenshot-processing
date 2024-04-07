@@ -22,8 +22,8 @@ public class ImageDrawingService {
     // HOURLY COORDINATES
     private static final String LABEL_9_10 = "9-10";
     private static final int LINE_9_10_X_COORDINATE = 200;
-    private static final int LINE_9_10_Y_COORDINATE = 450;
-    private static final int LINE_9_10_LENGTH = 300;
+    private static final int LINE_9_10_Y_COORDINATE = 100;
+    private static final int LINE_9_10_LENGTH = 600;
 
     // DAILY COORDINATES
 
@@ -53,7 +53,6 @@ public class ImageDrawingService {
             int imageHeight = image.getHeight();
             int x = imageWidth / 5 - (int) (imageWidth * 0.15);
             int y = (imageHeight - 50) / 2;
-            int line_x = LINE_9_10_X_COORDINATE;
 
             LocalDate currentDate = DateFileService.determineStartDate();
             int heightHelp = y;
@@ -72,10 +71,8 @@ public class ImageDrawingService {
 
                 g2d.drawString(dayOfWeek, x, heightHelp);
                 g2d.drawString(date, x, heightHelp + 25);
-                g2d.drawLine(line_x, LINE_9_10_Y_COORDINATE, line_x, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH);
-                g2d.drawString(LABEL_9_10, line_x - 20, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH + 20);
+                draw9to10Line(g2d, imageWidth, i);
                 x += (imageWidth / 5);
-                line_x += (imageWidth / 5);
 
                 currentDate = currentDate.plusDays(1);
                 while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
@@ -210,13 +207,8 @@ public class ImageDrawingService {
                 g2d.setFont(font);
                 g2d.setColor(Color.BLACK);
 
-                int imageWidth = image.getWidth();
-                int line_x = LINE_9_10_X_COORDINATE;
-
                 for (int i = 0; i < 5; i++) {
-                    g2d.drawLine(line_x, LINE_9_10_Y_COORDINATE, line_x, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH);
-                    g2d.drawString(LABEL_9_10, line_x - 20, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH + 20);
-                    line_x += (imageWidth / 5);
+                    draw9to10Line(g2d, image.getWidth(), i);
                 }
 
                 g2d.dispose();
@@ -225,6 +217,30 @@ public class ImageDrawingService {
                 System.out.println("Error while updating unprocessed directory and the following image: " + imageFile.getName());
             }
 
+        }
+    }
+
+    public static void draw9to10Line(Graphics2D g2d, int imageWidth, int index) {
+        if (index == 0) {
+            int line_x_1 = LINE_9_10_X_COORDINATE + 62;
+            g2d.drawLine(line_x_1, LINE_9_10_Y_COORDINATE, line_x_1, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH);
+            g2d.drawString(LABEL_9_10, line_x_1 - 20, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH + 20);
+        } else if (index == 1) {
+            int line_x_2 = LINE_9_10_X_COORDINATE + (imageWidth / 5) + 46;
+            g2d.drawLine(line_x_2, LINE_9_10_Y_COORDINATE, line_x_2, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH);
+            g2d.drawString(LABEL_9_10, line_x_2 - 20, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH + 20);
+        } else if (index == 2) {
+            int line_x_3 = LINE_9_10_X_COORDINATE + 2*(imageWidth / 5) + 30;
+            g2d.drawLine(line_x_3, LINE_9_10_Y_COORDINATE, line_x_3, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH);
+            g2d.drawString(LABEL_9_10, line_x_3 - 20, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH + 20);
+        } else if (index == 3) {
+            int line_x_4 = LINE_9_10_X_COORDINATE + 3*(imageWidth / 5) + 14;
+            g2d.drawLine(line_x_4, LINE_9_10_Y_COORDINATE, line_x_4, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH);
+            g2d.drawString(LABEL_9_10, line_x_4 - 20, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH + 20);
+        } else if (index == 4) {
+            int line_x_5 = LINE_9_10_X_COORDINATE + 4*(imageWidth / 5);
+            g2d.drawLine(line_x_5, LINE_9_10_Y_COORDINATE, line_x_5, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH);
+            g2d.drawString(LABEL_9_10, line_x_5 - 20, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH + 20);
         }
     }
 }

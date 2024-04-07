@@ -10,6 +10,7 @@ public class ImageDrawingServiceTest extends TestCase {
     private final String DIRECTORY_PATH = "D:\\Desktop\\ImagesBefore";
 
     public void testUpdateUnprocessedDirectoryWith9to10Lines() {
+        ScreenshotService.takeScreenshot(DIRECTORY_PATH);
         ImageDrawingService.UNPROCESSED_DIRECTORY_PATH = DIRECTORY_PATH;
         ImageDrawingService.updateUnprocessedDirectoryWith9to10Lines();
     }
