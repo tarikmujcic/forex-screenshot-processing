@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.App;
+import org.example.enums.ForexChartType;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -28,20 +29,34 @@ public class DateFileService {
 
     public static final List<LocalDate> forexOffDays = new ArrayList<>();
 
+    public static void determineAndWriteNextDate(ForexChartType forexChartType) {
+        if (forexChartType == ForexChartType.HOURLY || forexChartType == ForexChartType.DAILY) {
+            writeNextDate();
+        } else if (forexChartType == ForexChartType.WEEKLY) {
+            writeNextDateWeekly();
+        }
+    }
+
     public static void writeNextDate() {
         LocalDate dateFromFile = getDateFromFile();
         if (dateFromFile == null) {
             throw new RuntimeException("Date read from file is null!");
         }
-        LocalDate nextDate = getNextDate(dateFromFile);
-        try {
-            FileWriter fileWriter = new FileWriter(CURRENT_DATE_FILE_NAME);
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-            bufferedWriter.write(nextDate.toString());
-            bufferedWriter.close();
-        } catch (IOException e) {
-            System.err.println("Error writing to the file: " + e.getMessage());
+        LocalDate nextDate = incrementForexLocalDate(dateFromFile);
+        writeLocalDateToFile(nextDate);
+    }
+
+    public static void writeNextDateWeekly() {
+        LocalDate dateFromFile = getDateFromFile();
+        if (dateFromFile == null) {
+            throw new RuntimeException("Date read from file is null!");
         }
+        if (dateFromFile.getDayOfWeek() != DayOfWeek.FRIDAY) {
+            throw new RuntimeException(String.format(
+                    "You are doing weekly processing and the day in current-day.txt is %s! Please make sure to set it to FRIDAY.", dateFromFile.getDayOfWeek()
+            ));
+        }
+        writeLocalDateToFile(dateFromFile.plusDays(7));
     }
 
     public static LocalDate getDateFromFile() {
@@ -71,15 +86,24 @@ public class DateFileService {
         return LocalDate.parse(dateString, formatter);
     }
 
-    private static LocalDate getNextDate(LocalDate date) {
+    private static LocalDate incrementForexLocalDate(LocalDate date) {
         LocalDate nextDate = date.plusDays(1);
-
         // Keep iterating until a non-off day is found
         while (forexOffDays.contains(nextDate) || nextDate.getDayOfWeek() == DayOfWeek.SATURDAY || nextDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
             nextDate = nextDate.plusDays(1);
         }
-
         return nextDate;
+    }
+
+    private static void writeLocalDateToFile(LocalDate date) {
+        try {
+            FileWriter fileWriter = new FileWriter(CURRENT_DATE_FILE_NAME);
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            bufferedWriter.write(date.toString());
+            bufferedWriter.close();
+        } catch (IOException e) {
+            System.err.println("Error writing to the file: " + e.getMessage());
+        }
     }
 
     public static void initializeForexOffDays() {

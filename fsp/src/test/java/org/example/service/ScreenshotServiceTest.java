@@ -1,6 +1,7 @@
 package org.example.service;
 
 import junit.framework.TestCase;
+import org.example.enums.ForexChartType;
 
 public class ScreenshotServiceTest extends TestCase {
 
@@ -13,12 +14,12 @@ public class ScreenshotServiceTest extends TestCase {
         ScreenshotService.takeScreenshot(SCREENSHOT_PATH);
     }
 
-    public void testProcessScreenshot() {
-        ScreenshotService.processScreenshot(SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
+    public void testProcessScreenshotHourly() {
+        ScreenshotService.processScreenshot(ForexChartType.HOURLY, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
     }
 
-    public void testTakeAndProcessScreenshot() {
+    public void testTakeAndProcessScreenshotHourly() {
         testTakeScreenshot();
-        testProcessScreenshot();
+        testProcessScreenshotHourly();
     }
 }

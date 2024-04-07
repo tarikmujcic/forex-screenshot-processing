@@ -1,6 +1,5 @@
 package org.example.service;
 
-import org.example.App;
 import org.example.enums.ForexChartType;
 
 import javax.imageio.ImageIO;
@@ -19,9 +18,9 @@ public class ScreenshotService {
 
     private static final String SCREENSHOT_FILE_NAME = "window_capture.png";
 
-    public static void takeScreenshot(String targetDirectoryPath) {
+    public static File takeScreenshot(String targetDirectoryPath) {
         BufferedImage windowCapture = captureWindow();
-        saveImage(windowCapture, targetDirectoryPath, SCREENSHOT_FILE_NAME);
+        return saveImage(windowCapture, targetDirectoryPath, SCREENSHOT_FILE_NAME);
     }
 
     private static BufferedImage captureWindow() {
@@ -36,7 +35,7 @@ public class ScreenshotService {
         }
     }
 
-    private static void saveImage(BufferedImage image, String folderPath, String filename) {
+    private static File saveImage(BufferedImage image, String folderPath, String filename) {
         try {
             File folder = new File(folderPath);
             if (!folder.exists()) {
@@ -45,12 +44,13 @@ public class ScreenshotService {
             File outputFile = new File(folder, filename);
             ImageIO.write(image, "png", outputFile);
             System.out.println("Image saved to: " + outputFile.getAbsolutePath());
+            return outputFile;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void processScreenshot(String sourceDirectoryPath, String targetDirectoryPath) {
+    public static void processScreenshot(ForexChartType forexChartType, String sourceDirectoryPath, String targetDirectoryPath) {
         File sourceDirectory = new File(sourceDirectoryPath);
         File[] imageFiles = sourceDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpeg") || name.toLowerCase().endsWith(".png"));
         if (imageFiles == null || imageFiles.length == 0) {
@@ -59,14 +59,14 @@ public class ScreenshotService {
         }
 
         for (File imageFile : imageFiles) {
-            if (App.forexChartType == ForexChartType.HOURLY) {
-                ImageDrawingService.drawDayDate5Times(imageFile, targetDirectoryPath);
-            } else if (App.forexChartType == ForexChartType.DAILY) {
-                System.out.println("Processing Daily.");
-            } else if (App.forexChartType == ForexChartType.WEEKLY) {
-                System.out.println("Processing Weekly.");
+            if (forexChartType == ForexChartType.HOURLY) {
+                ImageDrawingService.drawHourlyInfo(imageFile, targetDirectoryPath);
+            } else if (forexChartType == ForexChartType.DAILY) {
+                ImageDrawingService.drawDailyInfo(imageFile, targetDirectoryPath);
+            } else if (forexChartType == ForexChartType.WEEKLY) {
+                ImageDrawingService.drawWeeklyInfo(imageFile, targetDirectoryPath);
             }
         }
-        DateFileService.writeNextDate();
+        DateFileService.determineAndWriteNextDate(forexChartType);
     }
 }

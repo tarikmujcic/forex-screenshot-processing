@@ -29,9 +29,16 @@ public class ImageDrawingService {
 
     // WEEKLY COORDINATES
 
-    public static void drawDayDate5Times(File imageFile, String targetDirectoryPath) {
+    /**
+     * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
+     * <p>
+     * Creates a new image from the source and draws day and date for each column and adds the lines for 9to10 candle, so it's easily distinguished.
+     * @param sourceImageFile Image source file that will be edited
+     * @param targetDirectoryPath Path where the new file will be saved
+     */
+    public static void drawHourlyInfo(File sourceImageFile, String targetDirectoryPath) {
         try {
-            BufferedImage image = ImageIO.read(imageFile);
+            BufferedImage image = ImageIO.read(sourceImageFile);
             // Create a graphics object to draw on the image
             Graphics2D g2d = image.createGraphics();
 
@@ -83,12 +90,109 @@ public class ImageDrawingService {
             // Save the modified image to the output directory
             File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileName());
             ImageIO.write(image, "png", outputFile);
-            imageFile.delete();
+            sourceImageFile.delete();
         } catch (IOException e) {
-            System.out.println("Error processing image: " + imageFile.getName());
+            System.out.println("Error processing image: " + sourceImageFile.getName());
         }
     }
 
+    /**
+     * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
+     * <p>
+     * Creates a new image from the source and draws day and date for the current date.
+     * @param sourceImageFile Image source file that will be edited
+     * @param targetDirectoryPath Path where the new file will be saved
+     */
+    public static void drawDailyInfo(File sourceImageFile, String targetDirectoryPath) {
+        try {
+            BufferedImage image = ImageIO.read(sourceImageFile);
+            // Create a graphics object to draw on the image
+            Graphics2D g2d = image.createGraphics();
+
+            // Define font and color for drawing days of the week
+            Font font = new Font("Arial", Font.BOLD, 24);
+            g2d.setFont(font);
+            g2d.setColor(Color.BLACK);
+
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+            int x = imageWidth / 9 * 8;
+            int y = imageHeight / 9 * 8;
+            LocalDate currentDate = DateFileService.getDateFromFile();
+            assert currentDate != null;
+            String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
+            String date = currentDate.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+
+            g2d.drawString(dayOfWeek, x, y);
+            g2d.drawString(date, x, y + 25);
+
+            currentDate = currentDate.plusDays(1);
+            while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                    currentDate.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                    DateFileService.forexOffDays.contains(currentDate)) {
+                currentDate = currentDate.plusDays(1);
+            }
+
+            g2d.dispose();
+            File outputFile = new File(targetDirectoryPath + File.separator + "Daily-" + date + ".png");
+            ImageIO.write(image, "png", outputFile);
+            sourceImageFile.delete();
+        } catch (IOException e) {
+            System.out.println("Error processing image: " + sourceImageFile.getName());
+        }
+    }
+
+    /**
+     * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
+     * <p>
+     * Creates a new image from the source and draws week start-end dates for where the end date will be the one found in the current-date.txt file.
+     * @param sourceImageFile Image source file that will be edited
+     * @param targetDirectoryPath Path where the new file will be saved
+     */
+    public static void drawWeeklyInfo(File sourceImageFile, String targetDirectoryPath) {
+        try {
+            BufferedImage image = ImageIO.read(sourceImageFile);
+            // Create a graphics object to draw on the image
+            Graphics2D g2d = image.createGraphics();
+
+            // Define font and color for drawing days of the week
+            Font font = new Font("Arial", Font.BOLD, 24);
+            g2d.setFont(font);
+            g2d.setColor(Color.BLACK);
+
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+            int x = imageWidth / 9 * 8;
+            int y = imageHeight / 9 * 8;
+            LocalDate startDate = DateFileService.determineStartDate();
+            LocalDate currentDate = DateFileService.getDateFromFile();
+            assert currentDate != null;
+            String startDateFormatted = startDate.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+            String currentDateFormatted = currentDate.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+
+            g2d.drawString(startDateFormatted, x, y);
+            g2d.drawString("to", x + 50, y + 25);
+            g2d.drawString(currentDateFormatted, x, y + 50);
+
+            currentDate = currentDate.plusDays(1);
+            while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                    currentDate.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                    DateFileService.forexOffDays.contains(currentDate)) {
+                currentDate = currentDate.plusDays(1);
+            }
+
+            g2d.dispose();
+            File outputFile = new File(targetDirectoryPath + File.separator + "Weekly-" + startDate + "to" + currentDate + ".png");
+            ImageIO.write(image, "png", outputFile);
+            sourceImageFile.delete();
+        } catch (IOException e) {
+            System.out.println("Error processing image: " + sourceImageFile.getName());
+        }
+    }
+
+    /**
+     * Help method which updates the old screenshots with 9to10 line
+     */
     public static void updateUnprocessedDirectoryWith9to10Lines() {
         File sourceDirectory = new File(UNPROCESSED_DIRECTORY_PATH);
         File[] imageFiles = sourceDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpeg") || name.toLowerCase().endsWith(".png"));

@@ -52,7 +52,7 @@ public class App {
             System.out.println("Enter key pressed. Taking the screenshot...");
             ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH);
             System.out.println("Screenshot taken successfully. Processing the screenshot...");
-            ScreenshotService.processScreenshot(SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
+            ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
             IS_TRIGGER_KEY_PRESSED = false;
         }
     }
@@ -62,7 +62,7 @@ public class App {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         Runnable runnableTask = () -> {
             KeyPressSimulationService.simulateKeyPressF12(23, 2000);
-            ScreenshotService.processScreenshot(SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
+            ScreenshotService.processScreenshot(ForexChartType.HOURLY, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
         };
         scheduler.scheduleAtFixedRate(runnableTask, 0, FOLDER_SCAN_INTERVAL, TimeUnit.SECONDS);
     }
