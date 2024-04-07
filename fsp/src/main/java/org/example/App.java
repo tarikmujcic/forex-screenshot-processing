@@ -1,7 +1,6 @@
 
 package org.example;
 
-import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import org.example.enums.ForexChartType;
 import org.example.service.KeyListenerService;
 import org.example.service.KeyPressSimulationService;
@@ -30,23 +29,25 @@ public class App {
      */
     public static final int[] CUSTOM_Y_COORDINATES = {3, 3, 3, 3, 3};
 
+    public static boolean IS_FULLY_AUTOMATED = true;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
     public static ForexChartType forexChartType = ForexChartType.HOURLY;
 
     public static void main(String[] args) throws InterruptedException {
-        KeyListenerService.initializeGlobalKeyListener(NativeKeyEvent.VC_ENTER);
+        KeyListenerService.initializeGlobalKeyListener();
         Thread.sleep(5000); // Wait for 5s at the start
 
         int numberOfPresses = forexChartType == ForexChartType.HOURLY ? 23 : 1;
         while (true) {
-            KeyPressSimulationService.simulateKeyPressF12(numberOfPresses, 2000);
-            System.out.println("Hit enter key to process the screenshot");
-            while (!IS_TRIGGER_KEY_PRESSED) {
-                try {
-                    Thread.sleep(100); // Check every 100 milliseconds
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+            if (!IS_FULLY_AUTOMATED) {
+                System.out.println("Hit B key to process the screenshot");
+                while (!IS_TRIGGER_KEY_PRESSED) {
+                    try {
+                        Thread.sleep(100); // Check every 100 milliseconds
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             System.out.println("Enter key pressed. Taking the screenshot...");
@@ -54,6 +55,8 @@ public class App {
             System.out.println("Screenshot taken successfully. Processing the screenshot...");
             ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
             IS_TRIGGER_KEY_PRESSED = false;
+
+            KeyPressSimulationService.simulateKeyPressF12(numberOfPresses, 2000);
         }
     }
 
