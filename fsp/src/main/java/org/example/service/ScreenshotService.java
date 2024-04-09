@@ -94,11 +94,12 @@ public class ScreenshotService {
                     }
                 }
 
+                int imageId = InstanceCounterService.getAndIncrementHOURLY_1_INSTANCE_COUNT();
                 // 1. Save to the General Target Folder
-                copyFileToOtherPath(imageFile, targetDirectoryPath + File.separator + determineFileNameForHourly1Type());
+                copyFileToOtherPath(imageFile, targetDirectoryPath + File.separator + determineFileNameForHourly1Type(imageId));
 
                 // 2. Save to the Date-Specific folder
-                copyFileToOtherPath(imageFile, CURRENT_FOLDER_PATH + File.separator + determineFileNameForHourly1Type());
+                copyFileToOtherPath(imageFile, CURRENT_FOLDER_PATH + File.separator + determineFileNameForHourly1Type(imageId));
 
                 // PREP DATA FOR NEXT ITERATION:
                 CURRENT_LOCAL_DATE_TIME = CURRENT_LOCAL_DATE_TIME.plusHours(1);
@@ -135,13 +136,14 @@ public class ScreenshotService {
         }
     }
 
-    private static String determineFileNameForHourly1Type() {
+    private static String determineFileNameForHourly1Type(int id) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
         DateTimeFormatter startHourFormatter = DateTimeFormatter.ofPattern("h");
         DateTimeFormatter endHourFormatter = DateTimeFormatter.ofPattern("ha");
 
         StringBuilder builder = new StringBuilder();
-        builder.append(dateFormatter.format(App.START_DATE))
+        builder.append(String.format("%05d-", id))
+                .append(dateFormatter.format(App.START_DATE))
                 .append("-")
                 .append(startHourFormatter.format(CURRENT_LOCAL_DATE_TIME))
                 .append("-")

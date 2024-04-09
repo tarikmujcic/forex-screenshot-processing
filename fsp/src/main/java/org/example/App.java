@@ -3,6 +3,7 @@ package org.example;
 
 import org.example.enums.ForexChartType;
 import org.example.service.DateFileService;
+import org.example.service.InstanceCounterService;
 import org.example.service.KeyListenerService;
 import org.example.service.KeyPressSimulationService;
 import org.example.service.ScreenshotService;
@@ -37,6 +38,7 @@ public class App {
 
     public static void main(String[] args) throws InterruptedException {
         KeyListenerService.initializeGlobalKeyListener();
+        InstanceCounterService.initializeInstanceCounters();
         Thread.sleep(5000); // Wait for 5s at the start
         START_DATE = DateFileService.getDateFromFile();
         if (START_DATE == null) {
