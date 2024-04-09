@@ -1,5 +1,7 @@
 package org.example.service;
 
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 import org.example.App;
 import org.example.enums.ForexChartType;
 
@@ -16,7 +18,9 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class DateFileService {
@@ -25,9 +29,13 @@ public class DateFileService {
 
     private static final String FOREX_DAYS_OFF_FILE_NAME = "forex-days-off.txt";
 
+    private static final String NON_23H_DAYS_FILE_NAME = "non-23h-days.csv";
+
     private static final DateTimeFormatter OFF_DAYS_DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM d yyyy");
 
     public static final List<LocalDate> forexOffDays = new ArrayList<>();
+
+    public static final Map<LocalDate, Integer> non23hdaysMap = new HashMap<>();
 
     public static void determineAndWriteNextDate(ForexChartType forexChartType) {
         if (forexChartType == ForexChartType.HOURLY || forexChartType == ForexChartType.DAILY) {
@@ -118,6 +126,33 @@ public class DateFileService {
         } catch (IOException e) {
             throw new RuntimeException("Error reading file: " + FOREX_DAYS_OFF_FILE_NAME, e);
         }
+    }
+
+    public static void initializeNon23hDaysMap() {
+        try (CSVReader reader = new CSVReader(new FileReader(NON_23H_DAYS_FILE_NAME))) {
+            String[] nextLine;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy");
+            reader.readNext(); // ignore header
+            while ((nextLine = reader.readNext()) != null) {
+                if (nextLine.length >= 2) {
+                    LocalDate date = LocalDate.parse(nextLine[0], formatter);
+                    int candles = Integer.parseInt(nextLine[1]);
+                    non23hdaysMap.put(date, candles);
+                }
+            }
+        } catch (CsvValidationException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int getForexHoursForDate(LocalDate date) {
+        if (non23hdaysMap.isEmpty()) {
+            initializeNon23hDaysMap();
+        }
+        if (non23hdaysMap.containsKey(date)) {
+            return non23hdaysMap.get(date);
+        }
+        return 23;
     }
 
     /**

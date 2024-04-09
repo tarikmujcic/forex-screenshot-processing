@@ -2,6 +2,7 @@
 package org.example;
 
 import org.example.enums.ForexChartType;
+import org.example.service.DateFileService;
 import org.example.service.KeyListenerService;
 import org.example.service.KeyPressSimulationService;
 import org.example.service.ScreenshotService;
@@ -37,8 +38,10 @@ public class App {
     public static void main(String[] args) throws InterruptedException {
         KeyListenerService.initializeGlobalKeyListener();
         Thread.sleep(5000); // Wait for 5s at the start
-
-        int numberOfPresses = forexChartType == ForexChartType.HOURLY ? 23 : 1;
+        START_DATE = DateFileService.getDateFromFile();
+        if (START_DATE == null) {
+            throw new RuntimeException("Start date is null - make sure that current-date.txt contains a valid date.");
+        }
         while (true) {
             if (!IS_FULLY_AUTOMATED) {
                 System.out.println("Hit B key to process the screenshot");
@@ -56,6 +59,7 @@ public class App {
             ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
             IS_TRIGGER_KEY_PRESSED = false;
 
+            int numberOfPresses = forexChartType == ForexChartType.HOURLY ? DateFileService.getForexHoursForDate(START_DATE.plusDays(1)) : 1;
             KeyPressSimulationService.simulateKeyPressF12(numberOfPresses, 2000);
         }
     }
