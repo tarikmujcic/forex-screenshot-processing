@@ -17,7 +17,7 @@ public class ImageDrawingService {
 
     private static final String HEADER_TEXT = "H1";
 
-    public static String UNPROCESSED_DIRECTORY_PATH = "D:\\Desktop\\ImagesAfter";
+    public static String UNPROCESSED_DIRECTORY_PATH = "C:\\US30\\After";
 
     // HOURLY COORDINATES
     private static final String LABEL_9_10 = "9-10";
@@ -36,7 +36,7 @@ public class ImageDrawingService {
      * @param sourceImageFile Image source file that will be edited
      * @param targetDirectoryPath Path where the new file will be saved
      */
-    public static void drawHourlyInfo(File sourceImageFile, String targetDirectoryPath) {
+    public static void drawHourly23Info(File sourceImageFile, String targetDirectoryPath) {
         try {
             BufferedImage image = ImageIO.read(sourceImageFile);
             // Create a graphics object to draw on the image

@@ -38,7 +38,8 @@ public class DateFileService {
     public static final Map<LocalDate, Integer> non23hdaysMap = new HashMap<>();
 
     public static void determineAndWriteNextDate(ForexChartType forexChartType) {
-        if (forexChartType == ForexChartType.HOURLY || forexChartType == ForexChartType.DAILY) {
+        if ((forexChartType == ForexChartType.HOURLY_1 && ScreenshotService.CURRENT_CANDLE == ScreenshotService.CURRENT_CANDLE_MAX) ||
+                (forexChartType == ForexChartType.HOURLY_23 || forexChartType == ForexChartType.DAILY)) {
             writeNextDate();
         } else if (forexChartType == ForexChartType.WEEKLY) {
             writeNextDateWeekly();
@@ -84,9 +85,11 @@ public class DateFileService {
         } catch (IOException e) {
             System.err.println("Error reading from the file: " + e.getMessage());
         }
-        return null;
+        if (dateFromFile == null) {
+            throw new RuntimeException("Date read from file is null!");
+        }
+        return dateFromFile;
     }
-
 
 
     private static LocalDate parseDateFromFile(String dateString) {
@@ -160,9 +163,6 @@ public class DateFileService {
      */
     public static LocalDate determineStartDate() {
         App.START_DATE = DateFileService.getDateFromFile();
-        if (App.START_DATE == null) {
-            throw new RuntimeException("An error occurred while trying to determine the start date. App.START_DATE is null!");
-        }
         // Subtract 5 days from the start date
         for (int i = 0; i < 5; i++) {
             App.START_DATE = App.START_DATE.minusDays(1);

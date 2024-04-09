@@ -7,7 +7,8 @@ import java.io.File;
 
 public class ImageDrawingServiceTest extends TestCase {
 
-    private final String DIRECTORY_PATH = "D:\\Desktop\\ImagesBefore";
+//    private final String DIRECTORY_PATH = "D:\\Desktop\\ImagesBefore";
+    private final String DIRECTORY_PATH = "C:\\US30\\Before";
 
     public void testUpdateUnprocessedDirectoryWith9to10Lines() {
         ScreenshotService.takeScreenshot(DIRECTORY_PATH);

@@ -13,8 +13,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class App {
-    private static final String SOURCE_DIRECTORY_PATH = "D:\\Desktop\\ImagesBefore";
-    private static final String TARGET_DIRECTORY_PATH = "D:\\Desktop\\ImagesAfter";
+    private static final String SOURCE_DIRECTORY_PATH = "C:\\US30\\Before";
+    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\After";
 
     public static LocalDate START_DATE;
 
@@ -33,7 +33,7 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = true;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.HOURLY;
+    public static ForexChartType forexChartType = ForexChartType.HOURLY_1;
 
     public static void main(String[] args) throws InterruptedException {
         KeyListenerService.initializeGlobalKeyListener();
@@ -59,7 +59,7 @@ public class App {
             ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
             IS_TRIGGER_KEY_PRESSED = false;
 
-            int numberOfPresses = forexChartType == ForexChartType.HOURLY ? DateFileService.getForexHoursForDate(START_DATE.plusDays(1)) : 1;
+            int numberOfPresses = forexChartType == ForexChartType.HOURLY_23 ? DateFileService.getForexHoursForDate(START_DATE.plusDays(1)) : 1;
             KeyPressSimulationService.simulateKeyPressF12(numberOfPresses, 2000);
         }
     }
@@ -69,7 +69,7 @@ public class App {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         Runnable runnableTask = () -> {
             KeyPressSimulationService.simulateKeyPressF12(23, 2000);
-            ScreenshotService.processScreenshot(ForexChartType.HOURLY, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
+            ScreenshotService.processScreenshot(ForexChartType.HOURLY_23, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
         };
         scheduler.scheduleAtFixedRate(runnableTask, 0, FOLDER_SCAN_INTERVAL, TimeUnit.SECONDS);
     }
