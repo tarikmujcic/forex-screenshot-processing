@@ -2,12 +2,21 @@ package org.example.service;
 
 import org.example.App;
 import org.example.enums.ForexChartType;
+import org.example.enums.ForexDayType;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.AWTException;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ScreenshotService {
 
@@ -19,9 +28,15 @@ public class ScreenshotService {
 
     private static final String SCREENSHOT_FILE_NAME = "window_capture.png";
 
-    public static void takeScreenshot(String targetDirectoryPath) {
+    // Below variables are used for HOURLY_1
+    public static int CURRENT_CANDLE = 1;
+    public static LocalDateTime CURRENT_LOCAL_DATE_TIME;
+    public static int CURRENT_CANDLE_MAX;
+    public static String CURRENT_FOLDER_PATH;
+
+    public static File takeScreenshot(String targetDirectoryPath) {
         BufferedImage windowCapture = captureWindow();
-        saveImage(windowCapture, targetDirectoryPath, SCREENSHOT_FILE_NAME);
+        return saveImage(windowCapture, targetDirectoryPath, SCREENSHOT_FILE_NAME);
     }
 
     private static BufferedImage captureWindow() {
@@ -36,7 +51,7 @@ public class ScreenshotService {
         }
     }
 
-    private static void saveImage(BufferedImage image, String folderPath, String filename) {
+    private static File saveImage(BufferedImage image, String folderPath, String filename) {
         try {
             File folder = new File(folderPath);
             if (!folder.exists()) {
@@ -45,12 +60,13 @@ public class ScreenshotService {
             File outputFile = new File(folder, filename);
             ImageIO.write(image, "png", outputFile);
             System.out.println("Image saved to: " + outputFile.getAbsolutePath());
+            return outputFile;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void processScreenshot(String sourceDirectoryPath, String targetDirectoryPath) {
+    public static void processScreenshot(ForexChartType forexChartType, String sourceDirectoryPath, String targetDirectoryPath) {
         File sourceDirectory = new File(sourceDirectoryPath);
         File[] imageFiles = sourceDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpeg") || name.toLowerCase().endsWith(".png"));
         if (imageFiles == null || imageFiles.length == 0) {
@@ -59,14 +75,79 @@ public class ScreenshotService {
         }
 
         for (File imageFile : imageFiles) {
-            if (App.forexChartType == ForexChartType.HOURLY) {
-                ImageDrawingService.drawDayDate5Times(imageFile, targetDirectoryPath);
-            } else if (App.forexChartType == ForexChartType.DAILY) {
-                System.out.println("Processing Daily.");
-            } else if (App.forexChartType == ForexChartType.WEEKLY) {
-                System.out.println("Processing Weekly.");
+            if (forexChartType == ForexChartType.HOURLY_1) {
+                if (CURRENT_CANDLE == 1) {
+                    CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(18, 0);
+                    ForexDayType dayType = ForexDayType.determineDayTypeForLocalDate(CURRENT_LOCAL_DATE_TIME.toLocalDate());
+                    if (dayType == ForexDayType.OFF_DAY) {
+                        throw new RuntimeException("Unexpected day type. OFF_DAY should never be in the CURRENT_LOCAL_DATE_TIME");
+                    }
+                    CURRENT_CANDLE_MAX = dayType == ForexDayType.GOOD_DAY ? 23 : DateFileService.getForexHoursForDate(CURRENT_LOCAL_DATE_TIME.toLocalDate());
+
+                    // create folder
+                    CURRENT_FOLDER_PATH = targetDirectoryPath + File.separator + CURRENT_LOCAL_DATE_TIME.toLocalDate();
+                    Path folderPath = Paths.get(CURRENT_FOLDER_PATH);
+                    try {
+                        Files.createDirectories(folderPath);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                // 1. Save to the General Target Folder
+                copyFileToOtherPath(imageFile, targetDirectoryPath + File.separator + determineFileNameForHourly1Type());
+
+                // 2. Save to the Date-Specific folder
+                copyFileToOtherPath(imageFile, CURRENT_FOLDER_PATH + File.separator + determineFileNameForHourly1Type());
+
+                // PREP DATA FOR NEXT ITERATION:
+                CURRENT_LOCAL_DATE_TIME = CURRENT_LOCAL_DATE_TIME.plusHours(1);
+                CURRENT_CANDLE++;
+
+                if (CURRENT_CANDLE == CURRENT_CANDLE_MAX + 1) {
+                    CURRENT_CANDLE = 1;
+                    CURRENT_FOLDER_PATH = "";
+                    CURRENT_LOCAL_DATE_TIME = null;
+                }
+            }
+            if (forexChartType == ForexChartType.HOURLY_23) {
+                ImageDrawingService.drawHourly23Info(imageFile, targetDirectoryPath);
+            } else if (forexChartType == ForexChartType.DAILY) {
+                ImageDrawingService.drawDailyInfo(imageFile, targetDirectoryPath);
+            } else if (forexChartType == ForexChartType.WEEKLY) {
+                ImageDrawingService.drawWeeklyInfo(imageFile, targetDirectoryPath);
             }
         }
-        DateFileService.writeNextDate();
+        DateFileService.determineAndWriteNextDate(forexChartType);
+    }
+
+    /**
+     * Creates a new file with targetPath (e.g 'path/to/myfile.txt')
+     * @param file the file that will get copied
+     * @param targetPath the path where to copy the file (including the name of the file)
+     */
+    private static void copyFileToOtherPath(File file, String targetPath) {
+        File newFile = new File(targetPath);
+        try (FileOutputStream fos = new FileOutputStream(newFile)) {
+            Files.copy(file.toPath(), fos);
+        } catch (IOException e) {
+            System.out.println("Failed to save file to folder: " + targetPath);
+        }
+    }
+
+    private static String determineFileNameForHourly1Type() {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+        DateTimeFormatter startHourFormatter = DateTimeFormatter.ofPattern("h");
+        DateTimeFormatter endHourFormatter = DateTimeFormatter.ofPattern("ha");
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(dateFormatter.format(App.START_DATE))
+                .append("-")
+                .append(startHourFormatter.format(CURRENT_LOCAL_DATE_TIME))
+                .append("-")
+                .append(endHourFormatter.format(CURRENT_LOCAL_DATE_TIME.plusHours(1)))
+                .append(".png");
+
+        return builder.toString();
     }
 }

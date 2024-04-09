@@ -16,6 +16,7 @@ public class KeyPressSimulationService {
             if (delay != 0) {
                 Thread.sleep(delay);
             }
+            System.out.println("Simulating key press " + numberOfPresses + " times...");
             Robot robot = new Robot();
             for (int i = 0; i < numberOfPresses; i++) {
                 robot.keyPress(KeyEvent.VK_F12);
