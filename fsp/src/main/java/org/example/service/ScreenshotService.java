@@ -78,6 +78,7 @@ public class ScreenshotService {
             if (forexChartType == ForexChartType.HOURLY_1) {
                 if (CURRENT_CANDLE == 1) {
                     CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(18, 0);
+                    App.START_DATE = CURRENT_LOCAL_DATE_TIME.toLocalDate();
                     ForexDayType dayType = ForexDayType.determineDayTypeForLocalDate(CURRENT_LOCAL_DATE_TIME.toLocalDate());
                     if (dayType == ForexDayType.OFF_DAY) {
                         throw new RuntimeException("Unexpected day type. OFF_DAY should never be in the CURRENT_LOCAL_DATE_TIME");
