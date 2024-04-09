@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class App {
     private static final String SOURCE_DIRECTORY_PATH = "C:\\US30\\Before";
-    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\After";
+    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\Hourly_1";
 
     public static LocalDate START_DATE;
 
