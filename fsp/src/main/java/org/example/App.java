@@ -3,6 +3,7 @@ package org.example;
 
 import org.example.enums.ForexChartType;
 import org.example.service.DateFileService;
+import org.example.service.FocusedAppCheckerService;
 import org.example.service.InstanceCounterService;
 import org.example.service.KeyListenerService;
 import org.example.service.KeyPressSimulationService;
@@ -55,14 +56,20 @@ public class App {
                     }
                 }
             }
-            System.out.println("Enter key pressed. Taking the screenshot...");
-            ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH);
-            System.out.println("Screenshot taken successfully. Processing the screenshot...");
-            ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
-            IS_TRIGGER_KEY_PRESSED = false;
 
-            int numberOfPresses = forexChartType == ForexChartType.HOURLY_23 ? DateFileService.getForexHoursForDate(START_DATE.plusDays(1)) : 1;
-            KeyPressSimulationService.simulateKeyPressF12(numberOfPresses, 2000);
+            if (FocusedAppCheckerService.isTraderAppFocused()) {
+                System.out.println("Enter key pressed. Taking the screenshot...");
+                ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH);
+                System.out.println("Screenshot taken successfully. Processing the screenshot...");
+                ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
+                IS_TRIGGER_KEY_PRESSED = false;
+
+                int numberOfPresses = forexChartType == ForexChartType.HOURLY_23 ? DateFileService.getForexHoursForDate(START_DATE.plusDays(1)) : 1;
+                KeyPressSimulationService.simulateKeyPressF12(numberOfPresses, 2000);
+            } else {
+                System.out.println("Trader Application not focused.");
+                Thread.sleep(1000);
+            }
         }
     }
 
