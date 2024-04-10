@@ -6,7 +6,7 @@ import com.sun.jna.platform.win32.WinDef;
 
 public class FocusedAppCheckerService {
 
-    private static final String APPLICATION_NAME = "Coinexx";
+    private static final String APPLICATION_NAME = "coinexx";
 
     public static boolean isTraderAppFocused() {
         User32 user32 = User32.INSTANCE;

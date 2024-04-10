@@ -65,7 +65,10 @@ public class App {
                 IS_TRIGGER_KEY_PRESSED = false;
 
                 int numberOfPresses = forexChartType == ForexChartType.HOURLY_23 ? DateFileService.getForexHoursForDate(START_DATE.plusDays(1)) : 1;
-                KeyPressSimulationService.simulateKeyPressF12(numberOfPresses, 2000);
+                while (!FocusedAppCheckerService.isTraderAppFocused()) {
+                    Thread.sleep(500);
+                }
+                KeyPressSimulationService.simulateKeyPressF12(numberOfPresses);
             } else {
                 System.out.println("Trader Application not focused.");
                 Thread.sleep(1000);
@@ -77,7 +80,7 @@ public class App {
     private static void oldMainWithoutKeyListener() {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         Runnable runnableTask = () -> {
-            KeyPressSimulationService.simulateKeyPressF12(23, 2000);
+            KeyPressSimulationService.simulateKeyPressF12(23);
             ScreenshotService.processScreenshot(ForexChartType.HOURLY_23, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
         };
         scheduler.scheduleAtFixedRate(runnableTask, 0, FOLDER_SCAN_INTERVAL, TimeUnit.SECONDS);
