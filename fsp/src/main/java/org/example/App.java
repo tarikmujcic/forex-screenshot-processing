@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class App {
     private static final String SOURCE_DIRECTORY_PATH = "C:\\US30\\Before";
     private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\Hourly_1";
+//    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
 
     public static LocalDate START_DATE;
 
@@ -69,6 +70,7 @@ public class App {
                     Thread.sleep(500);
                 }
                 KeyPressSimulationService.simulateKeyPressF12(numberOfPresses);
+                Thread.sleep(1000); // Delay after F12
             } else {
                 System.out.println("Trader Application not focused.");
                 Thread.sleep(1000);

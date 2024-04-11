@@ -38,8 +38,8 @@ public class DateFileService {
     public static final Map<LocalDate, Integer> non23hdaysMap = new HashMap<>();
 
     public static void determineAndWriteNextDate(ForexChartType forexChartType) {
-        if ((forexChartType == ForexChartType.HOURLY_1 && ScreenshotService.CURRENT_CANDLE == ScreenshotService.CURRENT_CANDLE_MAX) ||
-                (forexChartType == ForexChartType.HOURLY_23 || forexChartType == ForexChartType.DAILY)) {
+        if (((forexChartType == ForexChartType.HOURLY_1 || forexChartType == ForexChartType.FIVE_MIN) && ScreenshotService.CURRENT_CANDLE == ScreenshotService.CURRENT_CANDLE_MAX)
+                || (forexChartType == ForexChartType.HOURLY_23 || forexChartType == ForexChartType.DAILY)) {
             writeNextDate();
         } else if (forexChartType == ForexChartType.WEEKLY) {
             writeNextDateWeekly();
