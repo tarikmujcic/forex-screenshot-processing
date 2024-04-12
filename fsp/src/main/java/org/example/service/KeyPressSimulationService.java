@@ -42,7 +42,6 @@ public class KeyPressSimulationService {
                     user32.GetWindowText(hwnd, windowText, 512);
                     String title = Native.toString(windowText);
                     if (title.toLowerCase().contains(windowContainsText)) {
-                        System.out.println("TIUTLE: " + title);
                         // Found the window, bring it to the foreground
                         user32.SetForegroundWindow(hwnd); // MANDATORY !
                         // Found the window, send key events

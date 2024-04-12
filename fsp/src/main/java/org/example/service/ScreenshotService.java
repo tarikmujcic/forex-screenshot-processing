@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
 public class ScreenshotService {
 
@@ -24,7 +25,7 @@ public class ScreenshotService {
     private static final int CAPTURE_X = 0; // x-coordinate of the top-left corner of the capture region
     private static final int CAPTURE_Y = 45; // y-coordinate of the top-left corner of the capture region
     private static final int CAPTURE_WIDTH = 1920; // Width of the capture region
-    private static final int CAPTURE_HEIGHT = 960; // Height of the capture region
+    private static final int CAPTURE_HEIGHT = 990; // Height of the capture region
 
     public static final String SCREENSHOT_FILE_NAME = "window_capture.png";
 
@@ -34,6 +35,9 @@ public class ScreenshotService {
     public static int CURRENT_CANDLE_MAX;
     public static String CURRENT_FOLDER_PATH;
     public static String DEBUG_FOLDER_PATH;
+
+    // For image comparison
+    public static String LAST_IMAGE_PATH;
 
     public static File takeScreenshot(String targetDirectoryPath, String screenshotFileName) {
         BufferedImage windowCapture = captureWindow();
@@ -60,7 +64,6 @@ public class ScreenshotService {
             }
             File outputFile = new File(folder, filename);
             ImageIO.write(image, "png", outputFile);
-            System.out.println("Image saved to: " + outputFile.getAbsolutePath());
             return outputFile;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -74,25 +77,27 @@ public class ScreenshotService {
             System.out.println("No image files found in the input directory.");
             return;
         }
+        if (imageFiles.length > 1) {
+            Arrays.stream(imageFiles).forEach(t -> System.out.println(t.getPath()));
+            throw new RuntimeException("Multiple image files found in the input directory.");
+        }
 
-        for (File imageFile : imageFiles) {
-            if (forexChartType == ForexChartType.FIVE_MIN) {
-                processFiveMinImage(imageFile, targetDirectoryPath);
-            }
-            if (forexChartType == ForexChartType.HOURLY_1) {
-                processHourly1Image(imageFile, targetDirectoryPath);
-            }
-            if (forexChartType == ForexChartType.HOURLY_23) {
-                ImageDrawingService.drawHourly23Info(imageFile, targetDirectoryPath);
-            } else if (forexChartType == ForexChartType.DAILY) {
-                ImageDrawingService.drawDailyInfo(imageFile, targetDirectoryPath);
-            } else if (forexChartType == ForexChartType.WEEKLY) {
-                ImageDrawingService.drawWeeklyInfo(imageFile, targetDirectoryPath);
-            }
+        File imageFile = Arrays.stream(imageFiles).iterator().next();
+        if (forexChartType == ForexChartType.FIVE_MIN) {
+            processFiveMinImage(imageFile, targetDirectoryPath);
+        }
+        if (forexChartType == ForexChartType.HOURLY_1) {
+            processHourly1Image(imageFile, targetDirectoryPath);
+        }
+        if (forexChartType == ForexChartType.HOURLY_23) {
+            ImageDrawingService.drawHourly23Info(imageFile, targetDirectoryPath);
+        } else if (forexChartType == ForexChartType.DAILY) {
+            ImageDrawingService.drawDailyInfo(imageFile, targetDirectoryPath);
+        } else if (forexChartType == ForexChartType.WEEKLY) {
+            ImageDrawingService.drawWeeklyInfo(imageFile, targetDirectoryPath);
         }
         DateFileService.determineAndWriteNextDate(forexChartType);
     }
-
 
 
     private static void processFiveMinImage(File imageFile, String targetDirectoryPath) {
@@ -163,7 +168,9 @@ public class ScreenshotService {
         }
 
         // 1. Save to the General Target Folder
-        copyFileToOtherPath(imageFile, targetDirectoryPath + File.separator + determineFileNameForHourly1Type(imageId));
+        String targetFolderImagePath = targetDirectoryPath + File.separator + determineFileNameForHourly1Type(imageId);
+        copyFileToOtherPath(imageFile, targetFolderImagePath);
+        LAST_IMAGE_PATH = targetFolderImagePath;
 
         // 2. Save to the Date-Specific folder
         copyFileToOtherPath(imageFile, CURRENT_FOLDER_PATH + File.separator + determineFileNameForHourly1Type(imageId));
@@ -231,7 +238,7 @@ public class ScreenshotService {
         }
     }
 
-    private static String createFolderInPath(String directoryPath, String name) {
+    public static String createFolderInPath(String directoryPath, String name) {
         File directory = new File(directoryPath);
 
         if (!directory.exists()) {

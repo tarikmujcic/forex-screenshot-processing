@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class ImageComparator {
 
-    public static boolean areImagesSimilar(String image1Path, String image2Path) {
+    public static boolean areImagesSame(String image1Path, String image2Path) {
         try {
             double similarity = calculateImageSimilarity(image1Path, image2Path);
             return similarity > 0.99;
@@ -17,7 +17,7 @@ public class ImageComparator {
         return false;
     }
 
-    private static double calculateImageSimilarity(String imagePath1, String imagePath2) throws IOException {
+   public static double calculateImageSimilarity(String imagePath1, String imagePath2) throws IOException {
         BufferedImage img1 = ImageIO.read(new File(imagePath1));
         BufferedImage img2 = ImageIO.read(new File(imagePath2));
 
