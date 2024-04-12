@@ -9,6 +9,7 @@ import org.example.service.KeyListenerService;
 import org.example.service.KeyPressSimulationService;
 import org.example.service.ScreenshotService;
 
+import java.awt.event.KeyEvent;
 import java.time.LocalDate;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -69,7 +70,7 @@ public class App {
                 while (!FocusedAppCheckerService.isTraderAppFocused()) {
                     Thread.sleep(500);
                 }
-                KeyPressSimulationService.simulateKeyPressF12(numberOfPresses);
+                KeyPressSimulationService.sendKeyPressToSpecificWindow(FocusedAppCheckerService.APPLICATION_NAME, KeyEvent.VK_F12, numberOfPresses);
                 Thread.sleep(1000); // Delay after F12
             } else {
                 System.out.println("Trader Application not focused.");
