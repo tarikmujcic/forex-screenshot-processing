@@ -26,7 +26,7 @@ public class ScreenshotService {
     private static final int CAPTURE_WIDTH = 1920; // Width of the capture region
     private static final int CAPTURE_HEIGHT = 960; // Height of the capture region
 
-    private static final String SCREENSHOT_FILE_NAME = "window_capture.png";
+    public static final String SCREENSHOT_FILE_NAME = "window_capture.png";
 
     // Below variables are used for HOURLY_1
     public static int CURRENT_CANDLE = 1;
@@ -35,9 +35,9 @@ public class ScreenshotService {
     public static String CURRENT_FOLDER_PATH;
     public static String DEBUG_FOLDER_PATH;
 
-    public static File takeScreenshot(String targetDirectoryPath) {
+    public static File takeScreenshot(String targetDirectoryPath, String screenshotFileName) {
         BufferedImage windowCapture = captureWindow();
-        return saveImage(windowCapture, targetDirectoryPath, SCREENSHOT_FILE_NAME);
+        return saveImage(windowCapture, targetDirectoryPath, screenshotFileName);
     }
 
     private static BufferedImage captureWindow() {

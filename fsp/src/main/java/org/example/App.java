@@ -61,7 +61,7 @@ public class App {
 
             if (FocusedAppCheckerService.isTraderAppFocused()) {
                 System.out.println("Enter key pressed. Taking the screenshot...");
-                ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH);
+                ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
                 System.out.println("Screenshot taken successfully. Processing the screenshot...");
                 ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
                 IS_TRIGGER_KEY_PRESSED = false;
@@ -71,7 +71,7 @@ public class App {
                     Thread.sleep(500);
                 }
                 KeyPressSimulationService.sendKeyPressToSpecificWindow(FocusedAppCheckerService.APPLICATION_NAME, KeyEvent.VK_F12, numberOfPresses);
-                Thread.sleep(1000); // Delay after F12
+                Thread.sleep(500); // Delay after F12
             } else {
                 System.out.println("Trader Application not focused.");
                 Thread.sleep(1000);

@@ -14,7 +14,7 @@ public class ScreenshotServiceTest extends TestCase {
     private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\After";
 
     public void testTakeScreenshot() {
-        ScreenshotService.takeScreenshot(SCREENSHOT_PATH);
+        ScreenshotService.takeScreenshot(SCREENSHOT_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
     }
 
     public void testProcessScreenshotHourly() {
