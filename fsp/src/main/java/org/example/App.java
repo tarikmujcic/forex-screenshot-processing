@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class App {
     private static final String SOURCE_DIRECTORY_PATH = "C:\\US30\\Before";
-    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\Hourly_1";
+    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\Daily";
     private static final String TEST_SCREENSHOT_PATH =  ScreenshotService.createFolderInPath("C:\\US30", "Check");
 //    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
 
@@ -40,7 +40,7 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = true;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.HOURLY_1;
+    public static ForexChartType forexChartType = ForexChartType.DAILY;
 
     public static void main(String[] args) throws InterruptedException {
         ScreenshotService.createFolderInPath(TARGET_DIRECTORY_PATH, "Debug");

@@ -131,7 +131,8 @@ public class ImageDrawingService {
             }
 
             g2d.dispose();
-            File outputFile = new File(targetDirectoryPath + File.separator + "Daily-" + date + ".png");
+            int imageId = InstanceCounterService.getAndIncrementDAILY_INSTANCE_COUNT();
+            File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileNameForDaily(imageId));
             ImageIO.write(image, "png", outputFile);
             sourceImageFile.delete();
         } catch (IOException e) {
