@@ -191,6 +191,19 @@ public class DateFileService {
         return builder.toString();
     }
 
+    public static String determineFileNameForWeekly(int id, LocalDate startDate, LocalDate currentDate) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("%05d-", id))
+                .append(dateFormatter.format(startDate))
+                .append("to")
+                .append(dateFormatter.format(currentDate))
+                .append(".png");
+
+        return builder.toString();
+    }
+
     /**
      * Used for HOURLY
      */

@@ -180,7 +180,8 @@ public class ImageDrawingService {
             }
 
             g2d.dispose();
-            File outputFile = new File(targetDirectoryPath + File.separator + "Weekly-" + startDate + "to" + currentDate + ".png");
+            int imageId = InstanceCounterService.getAndIncrementWEEKLY_INSTANCE_COUNT();
+            File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileNameForWeekly(imageId, startDate, currentDate));
             ImageIO.write(image, "png", outputFile);
             sourceImageFile.delete();
         } catch (IOException e) {

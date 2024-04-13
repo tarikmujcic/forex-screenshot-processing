@@ -36,6 +36,10 @@ public class ScreenshotService {
     public static String CURRENT_FOLDER_PATH;
     public static String DEBUG_FOLDER_PATH;
 
+    // for FIVE_MIN folder structuring
+    public static int CURRENT_MONTH;
+    public static int CURRENT_YEAR;
+
     // For image comparison
     public static String LAST_IMAGE_PATH;
 
@@ -103,6 +107,19 @@ public class ScreenshotService {
     private static void processFiveMinImage(File imageFile, String targetDirectoryPath) {
         if (CURRENT_CANDLE == 1) {
             CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(18, 0);
+
+            // handle file hierarchy
+            int year = CURRENT_LOCAL_DATE_TIME.getYear();
+            if (CURRENT_YEAR != year) {
+                CURRENT_YEAR = year;
+                createFolderInPath(targetDirectoryPath, String.valueOf(CURRENT_YEAR));
+            }
+            int month = CURRENT_LOCAL_DATE_TIME.getMonthValue();
+            if (CURRENT_MONTH != month) {
+                CURRENT_MONTH = month;
+                createFolderInPath(targetDirectoryPath + File.separator + CURRENT_YEAR, String.valueOf(CURRENT_MONTH));
+            }
+
             App.START_DATE = CURRENT_LOCAL_DATE_TIME.toLocalDate();
             ForexDayType dayType = ForexDayType.determineDayTypeForLocalDate(CURRENT_LOCAL_DATE_TIME.toLocalDate());
             if (dayType == ForexDayType.OFF_DAY) {
@@ -113,7 +130,7 @@ public class ScreenshotService {
             DEBUG_FOLDER_PATH = createFolderInPath(targetDirectoryPath, "Debug");
 
             // create folder
-            CURRENT_FOLDER_PATH = targetDirectoryPath + File.separator + CURRENT_LOCAL_DATE_TIME.toLocalDate();
+            CURRENT_FOLDER_PATH = targetDirectoryPath + File.separator + CURRENT_YEAR + File.separator + CURRENT_MONTH + File.separator + CURRENT_LOCAL_DATE_TIME.toLocalDate();
             Path folderPath = Paths.get(CURRENT_FOLDER_PATH);
             try {
                 Files.createDirectories(folderPath);
@@ -129,7 +146,9 @@ public class ScreenshotService {
         }
 
         // 1. Save to the General Target Folder
-        copyFileToOtherPath(imageFile, targetDirectoryPath + File.separator + determineFileNameForFiveMinType(imageId));
+        String targetFolderImagePath = targetDirectoryPath + File.separator + determineFileNameForFiveMinType(imageId);
+        copyFileToOtherPath(imageFile, targetFolderImagePath);
+        LAST_IMAGE_PATH = targetFolderImagePath;
 
         // 2. Save to the Date-Specific folder
         copyFileToOtherPath(imageFile, CURRENT_FOLDER_PATH + File.separator + determineFileNameForFiveMinType(imageId));

@@ -20,10 +20,12 @@ import java.util.concurrent.TimeUnit;
 public class App {
     private static final String SOURCE_DIRECTORY_PATH = "C:\\US30\\Before";
     private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\Daily";
-    private static final String TEST_SCREENSHOT_PATH =  ScreenshotService.createFolderInPath("C:\\US30", "Check");
 //    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
 
+    private static final String TEST_SCREENSHOT_PATH = ScreenshotService.createFolderInPath("C:\\US30", "Check");
+
     public static LocalDate START_DATE;
+    public static LocalDate TODAY = LocalDate.now();
 
     /**
      * Used to set how often (in seconds) will the folder be checked
@@ -51,7 +53,7 @@ public class App {
         if (START_DATE == null) {
             throw new RuntimeException("Start date is null - make sure that current-date.txt contains a valid date.");
         }
-        while (true) {
+        while (START_DATE.isBefore(TODAY)) {
             if (!IS_FULLY_AUTOMATED) {
                 System.out.println("Hit B key to process the screenshot");
                 while (!IS_TRIGGER_KEY_PRESSED) {
@@ -83,6 +85,7 @@ public class App {
                 Thread.sleep(1000);
             }
         }
+        System.out.println("SCREENSHOT PROCESSING COMPLETED SUCCESSFULLY.");
     }
 
     private static void simulateF12UntilChartIsMoved() {
