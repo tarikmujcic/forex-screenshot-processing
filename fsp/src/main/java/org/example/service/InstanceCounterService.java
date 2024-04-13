@@ -21,6 +21,7 @@ public class InstanceCounterService {
     public static void initializeInstanceCounters() {
         HOURLY_1_INSTANCE_COUNT = readCountFromCounterFile(INSTANCE_COUNTER_HOURLY_1_FILE_PATH);
         FIVE_MIN_INSTANCE_COUNT = readCountFromCounterFile(INSTANCE_COUNTER_FIVE_MIN_FILE_PATH);
+        DAILY_INSTANCE_COUNT = readCountFromCounterFile(INSTANCE_COUNTER_DAILY_FILE_PATH);
     }
 
     public static int getAndIncrementHOURLY_1_INSTANCE_COUNT() {
