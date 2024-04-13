@@ -38,8 +38,8 @@ public class DateFileService {
     public static final Map<LocalDate, Integer> non23hdaysMap = new HashMap<>();
 
     public static void determineAndWriteNextDate(ForexChartType forexChartType) {
-        if ((forexChartType == ForexChartType.HOURLY_1 && ScreenshotService.CURRENT_CANDLE == ScreenshotService.CURRENT_CANDLE_MAX) ||
-                (forexChartType == ForexChartType.HOURLY_23 || forexChartType == ForexChartType.DAILY)) {
+        if (((forexChartType == ForexChartType.HOURLY_1 || forexChartType == ForexChartType.FIVE_MIN) && ScreenshotService.CURRENT_CANDLE == ScreenshotService.CURRENT_CANDLE_MAX)
+                || (forexChartType == ForexChartType.HOURLY_23 || forexChartType == ForexChartType.DAILY)) {
             writeNextDate();
         } else if (forexChartType == ForexChartType.WEEKLY) {
             writeNextDateWeekly();
@@ -177,6 +177,18 @@ public class DateFileService {
 
         System.out.println("START_DATE: " + App.START_DATE);
         return App.START_DATE;
+    }
+
+    public static String determineFileNameForDaily(int id) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format("%05d-", id))
+                .append(dateFormatter.format(App.START_DATE))
+                .append("-")
+                .append(".png");
+
+        return builder.toString();
     }
 
     /**
