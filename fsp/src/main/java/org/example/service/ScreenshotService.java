@@ -145,13 +145,10 @@ public class ScreenshotService {
             copyFileToOtherPath(imageFile, DEBUG_FOLDER_PATH + File.separator + determineFileNameForFiveMinType(imageId));
         }
 
-        // 1. Save to the General Target Folder
-        String targetFolderImagePath = targetDirectoryPath + File.separator + determineFileNameForFiveMinType(imageId);
+        // 1. Save ONLY to the Date-Specific folder
+        String targetFolderImagePath = CURRENT_FOLDER_PATH + File.separator + determineFileNameForFiveMinType(imageId);
         copyFileToOtherPath(imageFile, targetFolderImagePath);
         LAST_IMAGE_PATH = targetFolderImagePath;
-
-        // 2. Save to the Date-Specific folder
-        copyFileToOtherPath(imageFile, CURRENT_FOLDER_PATH + File.separator + determineFileNameForFiveMinType(imageId));
 
         // PREP DATA FOR NEXT ITERATION:
         CURRENT_LOCAL_DATE_TIME = CURRENT_LOCAL_DATE_TIME.plusMinutes(5);
@@ -210,6 +207,7 @@ public class ScreenshotService {
             Files.copy(file.toPath(), fos);
         } catch (IOException e) {
             System.out.println("Failed to save file to folder: " + targetPath);
+            throw new RuntimeException(e);
         }
     }
 
