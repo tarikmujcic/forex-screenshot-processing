@@ -102,6 +102,7 @@ public class ImageDrawingService {
      */
     public static void drawDailyInfo(File sourceImageFile, String targetDirectoryPath) {
         try {
+            App.START_DATE = DateFileService.getDateFromFile();
             BufferedImage image = ImageIO.read(sourceImageFile);
             // Create a graphics object to draw on the image
             Graphics2D g2d = image.createGraphics();
