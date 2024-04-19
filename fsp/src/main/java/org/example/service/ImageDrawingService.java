@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -19,15 +20,15 @@ public class ImageDrawingService {
 
     public static String UNPROCESSED_DIRECTORY_PATH = "C:\\US30\\After";
 
+    private static final Font DEFAULT_FONT = new Font("Arial", Font.BOLD, 24);
+
     // HOURLY COORDINATES
     private static final String LABEL_9_10 = "9-10";
     private static final int LINE_9_10_X_COORDINATE = 200;
     private static final int LINE_9_10_Y_COORDINATE = 100;
     private static final int LINE_9_10_LENGTH = 600;
 
-    // DAILY COORDINATES
-
-    // WEEKLY COORDINATES
+    private static final DateTimeFormatter DEFAULT_FORMATTED = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 
     /**
      * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
@@ -43,8 +44,7 @@ public class ImageDrawingService {
             Graphics2D g2d = image.createGraphics();
 
             // Define font and color for drawing days of the week
-            Font font = new Font("Arial", Font.BOLD, 24);
-            g2d.setFont(font);
+            g2d.setFont(DEFAULT_FONT);
             g2d.setColor(Color.BLACK);
 
             g2d.drawString(HEADER_TEXT, 50, 50);
@@ -58,7 +58,7 @@ public class ImageDrawingService {
             int heightHelp = y;
             for (int i = 0; i < 5; i++) {
                 String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
-                String date = currentDate.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+                String date = currentDate.format(DEFAULT_FORMATTED);
                 if (App.USE_CUSTOM_Y_COORDINATES) {
                     if (App.CUSTOM_Y_COORDINATES[i] == 1) {
                         heightHelp = imageHeight / 5;
@@ -93,6 +93,35 @@ public class ImageDrawingService {
         }
     }
 
+    public static void drawFourHourInfo(File sourceImageFile, String targetDirectoryPath, LocalDateTime localDateTime) {
+        try {
+            BufferedImage image = ImageIO.read(sourceImageFile);
+
+            Graphics2D g2d = image.createGraphics();
+            g2d.setFont(DEFAULT_FONT);
+            g2d.setColor(Color.BLACK);
+
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+            int x = imageWidth / 7 * 6;
+            int y = imageHeight / 9 * 8;
+
+            DateTimeFormatter hourFormatter = DateTimeFormatter.ofPattern("ha");
+            g2d.drawString("Week " + ScreenshotService.CURRENT_WEEK_START_LOCAL_DATE.format(DEFAULT_FORMATTED), x, y);
+            g2d.drawString("to " + ScreenshotService.CURRENT_WEEK_START_LOCAL_DATE.plusDays(4).format(DEFAULT_FORMATTED), x, y + 25);
+            g2d.drawString(ScreenshotService.CURRENT_DAY_OF_WEEK.toString(), x, y + 50);
+            g2d.drawString(localDateTime.format(hourFormatter) + " to " + localDateTime.plusHours(4).format(hourFormatter), x, y + 75);
+
+            g2d.dispose();
+            int imageId = InstanceCounterService.getAndIncrementFOUR_HOUR_INSTANCE_COUNT();
+            File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileNameForFourHour(imageId, localDateTime));
+            ImageIO.write(image, "png", outputFile);
+            sourceImageFile.delete();
+        } catch (IOException e) {
+            System.out.println("Error processing image: " + sourceImageFile.getName());
+        }
+    }
+
     /**
      * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
      * <p>
@@ -108,8 +137,7 @@ public class ImageDrawingService {
             Graphics2D g2d = image.createGraphics();
 
             // Define font and color for drawing days of the week
-            Font font = new Font("Arial", Font.BOLD, 24);
-            g2d.setFont(font);
+            g2d.setFont(DEFAULT_FONT);
             g2d.setColor(Color.BLACK);
 
             int imageWidth = image.getWidth();
@@ -119,7 +147,7 @@ public class ImageDrawingService {
             LocalDate currentDate = DateFileService.getDateFromFile();
             assert currentDate != null;
             String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
-            String date = currentDate.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+            String date = currentDate.format(DEFAULT_FORMATTED);
 
             g2d.drawString(dayOfWeek, x, y);
             g2d.drawString(date, x, y + 25);
@@ -155,8 +183,7 @@ public class ImageDrawingService {
             Graphics2D g2d = image.createGraphics();
 
             // Define font and color for drawing days of the week
-            Font font = new Font("Arial", Font.BOLD, 24);
-            g2d.setFont(font);
+            g2d.setFont(DEFAULT_FONT);
             g2d.setColor(Color.BLACK);
 
             int imageWidth = image.getWidth();
@@ -166,8 +193,8 @@ public class ImageDrawingService {
             LocalDate startDate = DateFileService.determineStartDate();
             LocalDate currentDate = DateFileService.getDateFromFile();
             assert currentDate != null;
-            String startDateFormatted = startDate.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
-            String currentDateFormatted = currentDate.format(DateTimeFormatter.ofPattern("MM-dd-yyyy"));
+            String startDateFormatted = startDate.format(DEFAULT_FORMATTED);
+            String currentDateFormatted = currentDate.format(DEFAULT_FORMATTED);
 
             g2d.drawString(startDateFormatted, x, y);
             g2d.drawString("to", x + 50, y + 25);
@@ -206,8 +233,7 @@ public class ImageDrawingService {
                 BufferedImage image = ImageIO.read(imageFile);
                 Graphics2D g2d = image.createGraphics();
 
-                Font font = new Font("Arial", Font.BOLD, 24);
-                g2d.setFont(font);
+                g2d.setFont(DEFAULT_FONT);
                 g2d.setColor(Color.BLACK);
 
                 for (int i = 0; i < 5; i++) {

@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -28,10 +30,10 @@ public class ScreenshotService {
     private static final int CAPTURE_HEIGHT = 990; // Height of the capture region
 
     public static final String SCREENSHOT_FILE_NAME = "window_capture.png";
-
-    // Below variables are used for HOURLY_1
-    public static int CURRENT_CANDLE = 1;
     public static LocalDateTime CURRENT_LOCAL_DATE_TIME;
+
+    // Below variables are used for candle calculations for HOURLY_1 and FOUR_HOUR
+    public static int CURRENT_CANDLE = 1;
     public static int CURRENT_CANDLE_MAX;
     public static String CURRENT_FOLDER_PATH;
     public static String DEBUG_FOLDER_PATH;
@@ -39,6 +41,10 @@ public class ScreenshotService {
     // for FIVE_MIN folder structuring
     public static int CURRENT_MONTH;
     public static int CURRENT_YEAR;
+
+    // for FOUR_HOUR Label
+    public static LocalDate CURRENT_WEEK_START_LOCAL_DATE;
+    public static DayOfWeek CURRENT_DAY_OF_WEEK;
 
     // For image comparison
     public static String LAST_IMAGE_PATH;
@@ -95,6 +101,8 @@ public class ScreenshotService {
         }
         if (forexChartType == ForexChartType.HOURLY_23) {
             ImageDrawingService.drawHourly23Info(imageFile, targetDirectoryPath);
+        } else if (forexChartType == ForexChartType.FOUR_HOUR) {
+            processFourHourImage(imageFile, targetDirectoryPath);
         } else if (forexChartType == ForexChartType.DAILY) {
             ImageDrawingService.drawDailyInfo(imageFile, targetDirectoryPath);
         } else if (forexChartType == ForexChartType.WEEKLY) {
@@ -196,6 +204,30 @@ public class ScreenshotService {
         incrementCandleInformation();
     }
 
+    private static void processFourHourImage(File imageFile, String targetDirectoryPath) {
+        if (CURRENT_CANDLE == 1) {
+            // TODO: get if bad week
+//            boolean badWeek = false;
+//            if (badWeek) {
+//                // skip
+//            }
+            CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(17, 0);
+            CURRENT_DAY_OF_WEEK = CURRENT_LOCAL_DATE_TIME.getDayOfWeek();
+            App.START_DATE = CURRENT_LOCAL_DATE_TIME.toLocalDate();
+            if (App.START_DATE.getDayOfWeek().equals(DayOfWeek.MONDAY)) {
+                CURRENT_WEEK_START_LOCAL_DATE = App.START_DATE;
+            }
+
+            CURRENT_CANDLE_MAX = 6;
+        }
+
+        ImageDrawingService.drawFourHourInfo(imageFile, targetDirectoryPath, CURRENT_LOCAL_DATE_TIME);
+
+        // PREP DATA FOR NEXT ITERATION:
+        CURRENT_LOCAL_DATE_TIME = CURRENT_LOCAL_DATE_TIME.plusHours(4);
+        incrementCandleInformation();
+    }
+
     /**
      * Creates a new file with targetPath (e.g 'path/to/myfile.txt')
      * @param file the file that will get copied
@@ -252,6 +284,11 @@ public class ScreenshotService {
             CURRENT_CANDLE = 1;
             CURRENT_FOLDER_PATH = "";
             CURRENT_LOCAL_DATE_TIME = null;
+            // for FOUR_HOUR
+            CURRENT_DAY_OF_WEEK = CURRENT_DAY_OF_WEEK.plus(1);
+            while (CURRENT_DAY_OF_WEEK == DayOfWeek.SATURDAY || CURRENT_DAY_OF_WEEK == DayOfWeek.SUNDAY) {
+                CURRENT_DAY_OF_WEEK = CURRENT_DAY_OF_WEEK.plus(1);
+            }
         }
     }
 

@@ -21,11 +21,15 @@ public class InstanceCounterService {
     private static final String INSTANCE_COUNTER_WEEKLY_FILE_PATH = "counters" + File.separator + "weekly-instance-counter.txt";
     private static int WEEKLY_INSTANCE_COUNT = 0;
 
+    private static final String INSTANCE_COUNTER_FOUR_HOUR_FILE_PATH = "counters" + File.separator + "four-hour-instance-counter.txt";
+    private static int FOUR_HOUR_INSTANCE_COUNT = 0;
+
     public static void initializeInstanceCounters() {
         HOURLY_1_INSTANCE_COUNT = readCountFromCounterFile(INSTANCE_COUNTER_HOURLY_1_FILE_PATH);
         FIVE_MIN_INSTANCE_COUNT = readCountFromCounterFile(INSTANCE_COUNTER_FIVE_MIN_FILE_PATH);
         DAILY_INSTANCE_COUNT = readCountFromCounterFile(INSTANCE_COUNTER_DAILY_FILE_PATH);
         WEEKLY_INSTANCE_COUNT = readCountFromCounterFile(INSTANCE_COUNTER_WEEKLY_FILE_PATH);
+        FOUR_HOUR_INSTANCE_COUNT = readCountFromCounterFile(INSTANCE_COUNTER_FOUR_HOUR_FILE_PATH);
     }
 
     public static int getAndIncrementHOURLY_1_INSTANCE_COUNT() {
@@ -37,6 +41,12 @@ public class InstanceCounterService {
     public static int getAndIncrementFIVE_MIN_INSTANCE_COUNT() {
         int currentInstanceCount = FIVE_MIN_INSTANCE_COUNT;
         incrementFiveMinCount();
+        return currentInstanceCount;
+    }
+
+    public static int getAndIncrementFOUR_HOUR_INSTANCE_COUNT() {
+        int currentInstanceCount = FOUR_HOUR_INSTANCE_COUNT;
+        incrementFourHourCount();
         return currentInstanceCount;
     }
 
@@ -89,6 +99,20 @@ public class InstanceCounterService {
         }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(INSTANCE_COUNTER_FIVE_MIN_FILE_PATH))) {
             writer.write(String.valueOf(++FIVE_MIN_INSTANCE_COUNT));
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to increment instance count for HOURLY_1");
+        }
+    }
+
+    /**
+     * Method increments the FOUR_HOUR count both in the file and the FOUR_HOUR_INSTANCE_COUNT variable.
+     */
+    public static void incrementFourHourCount() {
+        if (FOUR_HOUR_INSTANCE_COUNT == 0) {
+            FOUR_HOUR_INSTANCE_COUNT = readCountFromCounterFile(INSTANCE_COUNTER_FOUR_HOUR_FILE_PATH);
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(INSTANCE_COUNTER_FOUR_HOUR_FILE_PATH))) {
+            writer.write(String.valueOf(++FOUR_HOUR_INSTANCE_COUNT));
         } catch (IOException e) {
             throw new RuntimeException("Unable to increment instance count for HOURLY_1");
         }
