@@ -13,24 +13,16 @@ import org.example.service.ScreenshotService;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.time.LocalDate;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class App {
     private static final String SOURCE_DIRECTORY_PATH = "C:\\US30\\Before";
-    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\Daily";
+    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FOUR_HOUR";
 //    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
 
     private static final String TEST_SCREENSHOT_PATH = ScreenshotService.createFolderInPath("C:\\US30", "Check");
 
     public static LocalDate START_DATE;
     public static LocalDate TODAY = LocalDate.now();
-
-    /**
-     * Used to set how often (in seconds) will the folder be checked
-     */
-    private static final int FOLDER_SCAN_INTERVAL = 5;
 
     public static final boolean USE_CUSTOM_Y_COORDINATES = true;
 
@@ -42,7 +34,7 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = true;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.DAILY;
+    public static ForexChartType forexChartType = ForexChartType.FOUR_HOUR;
 
     public static void main(String[] args) throws InterruptedException {
         ScreenshotService.createFolderInPath(TARGET_DIRECTORY_PATH, "Debug");
@@ -94,15 +86,5 @@ public class App {
             KeyPressSimulationService.sendKeyPressToSpecificWindow(FocusedAppCheckerService.APPLICATION_NAME, KeyEvent.VK_F12, 1);
             screenshot = ScreenshotService.takeScreenshot(TEST_SCREENSHOT_PATH, "test.png");
         }
-    }
-
-    // just for documentation
-    private static void oldMainWithoutKeyListener() {
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        Runnable runnableTask = () -> {
-            KeyPressSimulationService.simulateKeyPressF12(23);
-            ScreenshotService.processScreenshot(ForexChartType.HOURLY_23, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
-        };
-        scheduler.scheduleAtFixedRate(runnableTask, 0, FOLDER_SCAN_INTERVAL, TimeUnit.SECONDS);
     }
 }

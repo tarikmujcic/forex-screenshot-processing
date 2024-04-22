@@ -114,7 +114,9 @@ public class ImageDrawingService {
 
             g2d.dispose();
             int imageId = InstanceCounterService.getAndIncrementFOUR_HOUR_INSTANCE_COUNT();
-            File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileNameForFourHour(imageId, localDateTime));
+            File outputFile = new File(
+                    targetDirectoryPath + File.separator + DateFileService.determineFileNameForFourHour(imageId, localDateTime)
+            );
             ImageIO.write(image, "png", outputFile);
             sourceImageFile.delete();
         } catch (IOException e) {

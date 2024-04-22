@@ -37,6 +37,7 @@ public class DateFileService {
     public static final List<LocalDate> forexOffDays = new ArrayList<>();
 
     public static final Map<LocalDate, Integer> non23hdaysMap = new HashMap<>();
+    public static final Map<LocalDate, Integer> non6FourHourDaysMap = new HashMap<>();
 
     public static void determineAndWriteNextDate(ForexChartType forexChartType) {
         if (
@@ -152,6 +153,23 @@ public class DateFileService {
         }
     }
 
+    public static void initializeNon6FourHourDaysMap() {
+        try (CSVReader reader = new CSVReader(new FileReader(NON_23H_DAYS_FILE_NAME))) {
+            String[] nextLine;
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM dd yyyy");
+            reader.readNext(); // ignore header
+            while ((nextLine = reader.readNext()) != null) {
+                if (nextLine.length >= 2) {
+                    LocalDate date = LocalDate.parse(nextLine[0], formatter);
+                    int candles = Integer.parseInt(nextLine[2]);
+                    non6FourHourDaysMap.put(date, candles);
+                }
+            }
+        } catch (CsvValidationException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static int getForexHoursForDate(LocalDate date) {
         if (non23hdaysMap.isEmpty()) {
             initializeNon23hDaysMap();
@@ -160,6 +178,16 @@ public class DateFileService {
             return non23hdaysMap.get(date);
         }
         return 23;
+    }
+
+    public static int getForexFourHoursCountForDate(LocalDate date) {
+        if (non6FourHourDaysMap.isEmpty()) {
+            initializeNon6FourHourDaysMap();
+        }
+        if (non6FourHourDaysMap.containsKey(date)) {
+            return non6FourHourDaysMap.get(date);
+        }
+        return 6;
     }
 
     /**
@@ -203,7 +231,7 @@ public class DateFileService {
 
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("%05d-", id))
-                .append(dateFormatter.format(localDateTime))
+                .append(dateFormatter.format(ScreenshotService.CURRENT_DATE_TIME_OF_WEEK))
                 .append("-")
                 .append(startHourFormatter.format(localDateTime))
                 .append("-")

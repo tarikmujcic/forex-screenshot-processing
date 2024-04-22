@@ -45,6 +45,11 @@ public class ScreenshotService {
     // for FOUR_HOUR Label
     public static LocalDate CURRENT_WEEK_START_LOCAL_DATE;
     public static DayOfWeek CURRENT_DAY_OF_WEEK;
+    /**
+     * Used for file naming of the FOUR_HOUR images. This is needed since the date goes to the next date after midnight
+     * and we want to make sure that file name contains always the start date (at the time from 5pm to 9pm)
+     */
+    public static LocalDateTime CURRENT_DATE_TIME_OF_WEEK;
 
     // For image comparison
     public static String LAST_IMAGE_PATH;
@@ -205,20 +210,26 @@ public class ScreenshotService {
     }
 
     private static void processFourHourImage(File imageFile, String targetDirectoryPath) {
+        if (CURRENT_WEEK_START_LOCAL_DATE == null) { // is first run of the app
+            LocalDate currentDate = DateFileService.getDateFromFile();
+            if (!currentDate.getDayOfWeek().equals(DayOfWeek.MONDAY)) {
+                CURRENT_WEEK_START_LOCAL_DATE = currentDate.minusDays(currentDate.getDayOfWeek().getValue() - 1);
+            }
+        }
         if (CURRENT_CANDLE == 1) {
-            // TODO: get if bad week
-//            boolean badWeek = false;
-//            if (badWeek) {
-//                // skip
-//            }
             CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(17, 0);
             CURRENT_DAY_OF_WEEK = CURRENT_LOCAL_DATE_TIME.getDayOfWeek();
+            CURRENT_DATE_TIME_OF_WEEK = CURRENT_LOCAL_DATE_TIME;
             App.START_DATE = CURRENT_LOCAL_DATE_TIME.toLocalDate();
             if (App.START_DATE.getDayOfWeek().equals(DayOfWeek.MONDAY)) {
                 CURRENT_WEEK_START_LOCAL_DATE = App.START_DATE;
             }
 
-            CURRENT_CANDLE_MAX = 6;
+            ForexDayType dayType = ForexDayType.determineDayTypeForLocalDate(App.START_DATE);
+            if (dayType == ForexDayType.OFF_DAY) {
+                throw new RuntimeException("Unexpected day type. OFF_DAY should never be in the CURRENT_LOCAL_DATE_TIME");
+            }
+            CURRENT_CANDLE_MAX = dayType == ForexDayType.GOOD_DAY ? 6 : DateFileService.getForexFourHoursCountForDate(CURRENT_LOCAL_DATE_TIME.toLocalDate());
         }
 
         ImageDrawingService.drawFourHourInfo(imageFile, targetDirectoryPath, CURRENT_LOCAL_DATE_TIME);
