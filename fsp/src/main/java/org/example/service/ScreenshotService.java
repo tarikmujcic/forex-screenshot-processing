@@ -27,7 +27,7 @@ public class ScreenshotService {
     private static final int CAPTURE_X = 0; // x-coordinate of the top-left corner of the capture region
     private static final int CAPTURE_Y = 45; // y-coordinate of the top-left corner of the capture region
     private static final int CAPTURE_WIDTH = 1920; // Width of the capture region
-    private static final int CAPTURE_HEIGHT = 990; // Height of the capture region
+    private static final int CAPTURE_HEIGHT = 972; // Height of the capture region
 
     public static final String SCREENSHOT_FILE_NAME = "window_capture.png";
     public static LocalDateTime CURRENT_LOCAL_DATE_TIME;
@@ -296,9 +296,11 @@ public class ScreenshotService {
             CURRENT_FOLDER_PATH = "";
             CURRENT_LOCAL_DATE_TIME = null;
             // for FOUR_HOUR
-            CURRENT_DAY_OF_WEEK = CURRENT_DAY_OF_WEEK.plus(1);
-            while (CURRENT_DAY_OF_WEEK == DayOfWeek.SATURDAY || CURRENT_DAY_OF_WEEK == DayOfWeek.SUNDAY) {
+            if (App.forexChartType == ForexChartType.FOUR_HOUR) {
                 CURRENT_DAY_OF_WEEK = CURRENT_DAY_OF_WEEK.plus(1);
+                while (CURRENT_DAY_OF_WEEK == DayOfWeek.SATURDAY || CURRENT_DAY_OF_WEEK == DayOfWeek.SUNDAY) {
+                    CURRENT_DAY_OF_WEEK = CURRENT_DAY_OF_WEEK.plus(1);
+                }
             }
         }
     }
