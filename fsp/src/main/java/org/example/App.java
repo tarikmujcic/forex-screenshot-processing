@@ -13,11 +13,12 @@ import org.example.service.ScreenshotService;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class App {
     private static final String SOURCE_DIRECTORY_PATH = "C:\\US30\\Before";
-    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FOUR_HOUR";
-//    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
+    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\After";
 
     private static final String TEST_SCREENSHOT_PATH = ScreenshotService.createFolderInPath("C:\\US30", "Check");
 
@@ -34,7 +35,17 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = true;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.FOUR_HOUR;
+    public static ForexChartType forexChartType = ForexChartType.DAILY_LATEST;
+
+    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
+            List.of("U30USD", "SPXUSD", "NASUSD", "XAUUSD", "USOUSD", "EURUSD", "USDCAD", "GPBUSD", "AUDUSD", "USDJPY"));
+
+
+    /**
+     * Used for the ForexChartType.DAILY_LATEST to Highlight which day is being screenshotted.
+     * It takes today's date by default, but you can change it with e.g LocalDate.now().plusDays(1) or .minusDays(1)
+     */
+    public static LocalDate LATEST_DATE = LocalDate.now();
 
     public static void main(String[] args) throws InterruptedException {
         ScreenshotService.createFolderInPath(TARGET_DIRECTORY_PATH, "Debug");
@@ -42,6 +53,26 @@ public class App {
         InstanceCounterService.initializeInstanceCounters();
         Thread.sleep(5000); // Wait for 5s at the start
         START_DATE = DateFileService.getDateFromFile();
+
+        // Handle special case of ForexChartType.DAILY_LATEST
+        if (forexChartType == ForexChartType.DAILY_LATEST) {
+            for (String currencyCode : FOREX_CURRENCY_CODE_LIST) {
+                System.out.println("Kit B key to process the screenshot for the currency: " + currencyCode);
+                while (!IS_TRIGGER_KEY_PRESSED) {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
+                ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH, currencyCode);
+                IS_TRIGGER_KEY_PRESSED = false;
+            }
+            System.out.println("Execution of ForexChartType.DAILY_LATEST completed successfully.");
+            return; // exit out of the application
+        }
+
         if (START_DATE == null) {
             throw new RuntimeException("Start date is null - make sure that current-date.txt contains a valid date.");
         }

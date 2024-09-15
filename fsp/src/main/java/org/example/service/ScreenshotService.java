@@ -86,6 +86,10 @@ public class ScreenshotService {
     }
 
     public static void processScreenshot(ForexChartType forexChartType, String sourceDirectoryPath, String targetDirectoryPath) {
+        processScreenshot(forexChartType, sourceDirectoryPath, targetDirectoryPath, null);
+    }
+
+    public static void processScreenshot(ForexChartType forexChartType, String sourceDirectoryPath, String targetDirectoryPath, String currencyCode) {
         File sourceDirectory = new File(sourceDirectoryPath);
         File[] imageFiles = sourceDirectory.listFiles((dir, name) -> name.toLowerCase().endsWith(".jpeg") || name.toLowerCase().endsWith(".png"));
         if (imageFiles == null || imageFiles.length == 0) {
@@ -112,6 +116,8 @@ public class ScreenshotService {
             ImageDrawingService.drawDailyInfo(imageFile, targetDirectoryPath);
         } else if (forexChartType == ForexChartType.WEEKLY) {
             ImageDrawingService.drawWeeklyInfo(imageFile, targetDirectoryPath);
+        } else if (forexChartType == ForexChartType.DAILY_LATEST) {
+            ImageDrawingService.drawDailyLatestInfo(imageFile, currencyCode);
         }
         DateFileService.determineAndWriteNextDate(forexChartType);
     }

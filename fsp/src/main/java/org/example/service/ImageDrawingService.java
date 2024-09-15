@@ -21,6 +21,7 @@ public class ImageDrawingService {
     public static String UNPROCESSED_DIRECTORY_PATH = "C:\\US30\\After";
 
     private static final Font DEFAULT_FONT = new Font("Arial", Font.BOLD, 24);
+    private static final Font DEFAULT_FONT_BIG = new Font("Arial", Font.BOLD, 36);
 
     // HOURLY COORDINATES
     private static final String LABEL_9_10 = "9-10";
@@ -28,7 +29,13 @@ public class ImageDrawingService {
     private static final int LINE_9_10_Y_COORDINATE = 100;
     private static final int LINE_9_10_LENGTH = 600;
 
-    private static final DateTimeFormatter DEFAULT_FORMATTED = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+    // DAILY_LATEST COORDINATES
+    private static final int LINE_DAILY_LATEST_X_COORDINATE = 1828;
+    private static final int LINE_DAILY_LATEST_Y_COORDINATE = 700;
+    private static final int LINE_DAILY_LATEST_LENGTH = 600;
+
+
+    private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 
     /**
      * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
@@ -58,7 +65,7 @@ public class ImageDrawingService {
             int heightHelp = y;
             for (int i = 0; i < 5; i++) {
                 String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
-                String date = currentDate.format(DEFAULT_FORMATTED);
+                String date = currentDate.format(DEFAULT_FORMATTER);
                 if (App.USE_CUSTOM_Y_COORDINATES) {
                     if (App.CUSTOM_Y_COORDINATES[i] == 1) {
                         heightHelp = imageHeight / 5;
@@ -107,8 +114,8 @@ public class ImageDrawingService {
             int y = imageHeight / 9 * 8;
 
             DateTimeFormatter hourFormatter = DateTimeFormatter.ofPattern("ha");
-            g2d.drawString("Week " + ScreenshotService.CURRENT_WEEK_START_LOCAL_DATE.format(DEFAULT_FORMATTED), x, y);
-            g2d.drawString("to " + ScreenshotService.CURRENT_WEEK_START_LOCAL_DATE.plusDays(4).format(DEFAULT_FORMATTED), x, y + 25);
+            g2d.drawString("Week " + ScreenshotService.CURRENT_WEEK_START_LOCAL_DATE.format(DEFAULT_FORMATTER), x, y);
+            g2d.drawString("to " + ScreenshotService.CURRENT_WEEK_START_LOCAL_DATE.plusDays(4).format(DEFAULT_FORMATTER), x, y + 25);
             g2d.drawString(ScreenshotService.CURRENT_DAY_OF_WEEK.toString(), x, y + 50);
             g2d.drawString(localDateTime.format(hourFormatter) + " to " + localDateTime.plusHours(4).format(hourFormatter), x, y + 75);
 
@@ -149,7 +156,7 @@ public class ImageDrawingService {
             LocalDate currentDate = DateFileService.getDateFromFile();
             assert currentDate != null;
             String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
-            String date = currentDate.format(DEFAULT_FORMATTED);
+            String date = currentDate.format(DEFAULT_FORMATTER);
 
             g2d.drawString(dayOfWeek, x, y);
             g2d.drawString(date, x, y + 25);
@@ -170,6 +177,66 @@ public class ImageDrawingService {
             System.out.println("Error processing image: " + sourceImageFile.getName());
         }
     }
+
+    /**
+     * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
+     * <p>
+     * Creates a new image from the source and draws
+     * 1. Day and Date for the current date
+     * 2. Line to highlight the candle that is being referenced
+     * 3. Currency Code in the top left.
+     * @param sourceImageFile Image source file that will be edited
+     * @param currencyType Type of currency that will be drawn on image, but also determines the targetImagePath
+     */
+    public static void drawDailyLatestInfo(File sourceImageFile, String currencyType) {
+        try {
+            String targetDirectoryPath = "C:\\" + currencyType + "\\" + DEFAULT_FORMATTER.format(App.LATEST_DATE);
+            BufferedImage image = ImageIO.read(sourceImageFile);
+            // Create a graphics object to draw on the image
+            Graphics2D g2d = image.createGraphics();
+
+            // Define font and color for drawing days of the week
+            g2d.setFont(DEFAULT_FONT_BIG);
+            g2d.setColor(Color.BLACK);
+
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+            int x = imageWidth / 6 * 5;
+            int y = imageHeight / 9 * 8;
+            LocalDate currentDate = DateFileService.getDateFromFile();
+            assert currentDate != null;
+            String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
+            String date = currentDate.format(DEFAULT_FORMATTER);
+
+            g2d.drawString(dayOfWeek, x, y);
+            g2d.drawString(date, x, y + 35);
+
+            g2d.drawString(currencyType, 50, 80);
+
+            g2d.setStroke(new BasicStroke(3.0f));
+            g2d.drawLine(LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE,
+                    LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE + LINE_DAILY_LATEST_LENGTH);
+
+            currentDate = currentDate.plusDays(1);
+            while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                    currentDate.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                    DateFileService.forexOffDays.contains(currentDate)) {
+                currentDate = currentDate.plusDays(1);
+            }
+
+            g2d.dispose();
+
+            File outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + ".png");
+            if (!outputFile.exists()) {
+                outputFile.mkdirs(); // Creates the directory and any necessary parent directories
+            }
+            ImageIO.write(image, "png", outputFile);
+            sourceImageFile.delete();
+        } catch (IOException e) {
+            System.out.println("Error processing image: " + sourceImageFile.getName());
+        }
+    }
+
 
     /**
      * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
@@ -195,8 +262,8 @@ public class ImageDrawingService {
             LocalDate startDate = DateFileService.determineStartDate();
             LocalDate currentDate = DateFileService.getDateFromFile();
             assert currentDate != null;
-            String startDateFormatted = startDate.format(DEFAULT_FORMATTED);
-            String currentDateFormatted = currentDate.format(DEFAULT_FORMATTED);
+            String startDateFormatted = startDate.format(DEFAULT_FORMATTER);
+            String currentDateFormatted = currentDate.format(DEFAULT_FORMATTER);
 
             g2d.drawString(startDateFormatted, x, y);
             g2d.drawString("to", x + 50, y + 25);
