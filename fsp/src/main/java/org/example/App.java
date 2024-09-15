@@ -36,7 +36,7 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = true;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.DAILY_LATEST;
+    public static ForexChartType forexChartType = ForexChartType.HOURLY_23_LATEST;
 
     public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
             List.of("U30USD", "SPXUSD", "NASUSD", "XAUUSD", "USOUSD", "EURUSD", "USDCAD", "GPBUSD", "AUDUSD", "USDJPY"));
@@ -56,9 +56,9 @@ public class App {
         START_DATE = DateFileService.getDateFromFile();
 
         // Handle special case of ForexChartType.DAILY_LATEST
-        if (forexChartType == ForexChartType.DAILY_LATEST) {
+        if (forexChartType == ForexChartType.DAILY_LATEST || forexChartType == ForexChartType.HOURLY_23_LATEST) {
             for (String currencyCode : FOREX_CURRENCY_CODE_LIST) {
-                System.out.println("Kit B key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE));
+                System.out.println("Hit B key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE));
                 while (!IS_TRIGGER_KEY_PRESSED) {
                     try {
                         Thread.sleep(100);

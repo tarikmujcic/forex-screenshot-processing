@@ -1,6 +1,7 @@
 package org.example.service;
 
 import org.example.App;
+import org.example.enums.ForexChartType;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -61,7 +62,19 @@ public class ImageDrawingService {
             int x = imageWidth / 5 - (int) (imageWidth * 0.15);
             int y = (imageHeight - 50) / 2;
 
-            LocalDate currentDate = DateFileService.determineStartDate();
+            LocalDate currentDate = App.forexChartType == ForexChartType.HOURLY_23 ? DateFileService.determineStartDate() : App.LATEST_DATE;
+            // set the current date to start from 4 "work" days before the selected date in the App.LATEST_DATE
+            if (App.forexChartType == ForexChartType.HOURLY_23_LATEST) {
+                for (int i = 0; i < 4; i++) {
+                    currentDate = currentDate.minusDays(1);
+                    while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                            currentDate.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                            DateFileService.forexOffDays.contains(currentDate)) {
+                        currentDate = currentDate.minusDays(1);
+                    }
+                }
+            }
+
             int heightHelp = y;
             for (int i = 0; i < 5; i++) {
                 String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
@@ -92,7 +105,12 @@ public class ImageDrawingService {
             g2d.dispose(); // Dispose the graphics object
 
             // Save the modified image to the output directory
-            File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileName());
+            String fileName = App.forexChartType == ForexChartType.HOURLY_23 ? DateFileService.determineFileName() :
+                    DEFAULT_FORMATTER.format(App.LATEST_DATE) + ".png";
+            File outputFile = new File(targetDirectoryPath + File.separator + fileName);
+            if (!outputFile.exists()) {
+                outputFile.mkdirs(); // Creates the directory and any necessary parent directories
+            }
             ImageIO.write(image, "png", outputFile);
             sourceImageFile.delete();
         } catch (IOException e) {
@@ -186,11 +204,12 @@ public class ImageDrawingService {
      * 2. Line to highlight the candle that is being referenced
      * 3. Currency Code in the top left.
      * @param sourceImageFile Image source file that will be edited
-     * @param currencyType Type of currency that will be drawn on image, but also determines the targetImagePath
+     * @param targetDirectoryPath Path where the new file will be saved
+     * @param currencyCode Type of currency that will be drawn on image, but also determines the targetImagePath
      */
-    public static void drawDailyLatestInfo(File sourceImageFile, String currencyType) {
+    public static void drawDailyLatestInfo(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
         try {
-            String targetDirectoryPath = "C:\\" + currencyType + "\\" + DEFAULT_FORMATTER.format(App.LATEST_DATE);
+            targetDirectoryPath = targetDirectoryPath + "\\" + currencyCode + "\\" + DEFAULT_FORMATTER.format(App.LATEST_DATE);
             BufferedImage image = ImageIO.read(sourceImageFile);
             // Create a graphics object to draw on the image
             Graphics2D g2d = image.createGraphics();
@@ -211,7 +230,7 @@ public class ImageDrawingService {
             g2d.drawString(dayOfWeek, x, y);
             g2d.drawString(date, x, y + 35);
 
-            g2d.drawString(currencyType, 50, 80);
+            g2d.drawString(currencyCode, 50, 80);
 
             g2d.setStroke(new BasicStroke(3.0f));
             g2d.drawLine(LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE,

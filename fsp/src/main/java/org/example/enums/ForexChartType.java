@@ -6,6 +6,7 @@ public enum ForexChartType {
     HOURLY_23,
     FOUR_HOUR,
     DAILY,
+    WEEKLY,
     DAILY_LATEST,
-    WEEKLY
+    HOURLY_23_LATEST
 }
