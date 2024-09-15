@@ -106,7 +106,7 @@ public class ImageDrawingService {
 
             // Save the modified image to the output directory
             String fileName = App.forexChartType == ForexChartType.HOURLY_23 ? DateFileService.determineFileName() :
-                    DEFAULT_FORMATTER.format(App.LATEST_DATE) + ".png";
+                    DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-HOURLY.png";
             File outputFile = new File(targetDirectoryPath + File.separator + fileName);
             if (!outputFile.exists()) {
                 outputFile.mkdirs(); // Creates the directory and any necessary parent directories
