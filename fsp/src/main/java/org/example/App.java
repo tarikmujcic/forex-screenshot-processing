@@ -9,6 +9,7 @@ import org.example.service.InstanceCounterService;
 import org.example.service.KeyListenerService;
 import org.example.service.KeyPressSimulationService;
 import org.example.service.ScreenshotService;
+import org.example.service.ImageDrawingService;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -57,7 +58,7 @@ public class App {
         // Handle special case of ForexChartType.DAILY_LATEST
         if (forexChartType == ForexChartType.DAILY_LATEST) {
             for (String currencyCode : FOREX_CURRENCY_CODE_LIST) {
-                System.out.println("Kit B key to process the screenshot for the currency: " + currencyCode);
+                System.out.println("Kit B key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE));
                 while (!IS_TRIGGER_KEY_PRESSED) {
                     try {
                         Thread.sleep(100);

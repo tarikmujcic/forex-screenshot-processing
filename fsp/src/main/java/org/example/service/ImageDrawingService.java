@@ -31,11 +31,11 @@ public class ImageDrawingService {
 
     // DAILY_LATEST COORDINATES
     private static final int LINE_DAILY_LATEST_X_COORDINATE = 1828;
-    private static final int LINE_DAILY_LATEST_Y_COORDINATE = 700;
-    private static final int LINE_DAILY_LATEST_LENGTH = 600;
+    private static final int LINE_DAILY_LATEST_Y_COORDINATE = 350;
+    private static final int LINE_DAILY_LATEST_LENGTH = 450;
 
 
-    private static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+    public static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("MM-dd-yyyy");
 
     /**
      * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
@@ -203,8 +203,8 @@ public class ImageDrawingService {
             int imageHeight = image.getHeight();
             int x = imageWidth / 6 * 5;
             int y = imageHeight / 9 * 8;
-            LocalDate currentDate = DateFileService.getDateFromFile();
-            assert currentDate != null;
+
+            LocalDate currentDate = App.LATEST_DATE;
             String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
             String date = currentDate.format(DEFAULT_FORMATTER);
 
@@ -216,13 +216,6 @@ public class ImageDrawingService {
             g2d.setStroke(new BasicStroke(3.0f));
             g2d.drawLine(LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE,
                     LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE + LINE_DAILY_LATEST_LENGTH);
-
-            currentDate = currentDate.plusDays(1);
-            while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
-                    currentDate.getDayOfWeek() == DayOfWeek.SUNDAY ||
-                    DateFileService.forexOffDays.contains(currentDate)) {
-                currentDate = currentDate.plusDays(1);
-            }
 
             g2d.dispose();
 
