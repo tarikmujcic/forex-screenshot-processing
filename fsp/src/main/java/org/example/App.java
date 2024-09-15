@@ -39,7 +39,7 @@ public class App {
     public static ForexChartType forexChartType = ForexChartType.HOURLY_23_LATEST;
 
     public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
-            List.of("U30USD", "SPXUSD", "NASUSD", "XAUUSD", "USOUSD", "EURUSD", "USDCAD", "GPBUSD", "AUDUSD", "USDJPY"));
+            List.of("U30USD", "SPXUSD", "NASUSD", "XAUUSD", "USOUSD", "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY"));
 
 
     /**
