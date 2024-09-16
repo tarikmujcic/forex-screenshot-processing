@@ -45,18 +45,23 @@ public class ImageDrawingService {
      * @param sourceImageFile Image source file that will be edited
      * @param targetDirectoryPath Path where the new file will be saved
      */
-    public static void drawHourly23Info(File sourceImageFile, String targetDirectoryPath) {
+    public static void drawHourly23Info(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
         try {
             BufferedImage image = ImageIO.read(sourceImageFile);
             // Create a graphics object to draw on the image
             Graphics2D g2d = image.createGraphics();
 
             // Define font and color for drawing days of the week
-            g2d.setFont(DEFAULT_FONT);
+            g2d.setFont(DEFAULT_FONT_BIG);
             g2d.setColor(Color.BLACK);
 
-            g2d.drawString(HEADER_TEXT, 50, 50);
+            String headerText = HEADER_TEXT;
+            if (currencyCode != null) {
+                headerText = currencyCode + " - " + HEADER_TEXT;
+            }
+            g2d.drawString(headerText, 50, 50);
 
+            g2d.setFont(DEFAULT_FONT);
             int imageWidth = image.getWidth();
             int imageHeight = image.getHeight();
             int x = imageWidth / 5 - (int) (imageWidth * 0.15);

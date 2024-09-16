@@ -109,7 +109,7 @@ public class ScreenshotService {
             processHourly1Image(imageFile, targetDirectoryPath);
         }
         if (forexChartType == ForexChartType.HOURLY_23) {
-            ImageDrawingService.drawHourly23Info(imageFile, targetDirectoryPath);
+            ImageDrawingService.drawHourly23Info(imageFile, targetDirectoryPath, null);
         } else if (forexChartType == ForexChartType.FOUR_HOUR) {
             processFourHourImage(imageFile, targetDirectoryPath);
         } else if (forexChartType == ForexChartType.DAILY) {
@@ -120,7 +120,7 @@ public class ScreenshotService {
             ImageDrawingService.drawDailyLatestInfo(imageFile, targetDirectoryPath, currencyCode);
         } else if (forexChartType == ForexChartType.HOURLY_23_LATEST) {
             String targetFullPath = targetDirectoryPath + "\\" + currencyCode + "\\" + ImageDrawingService.DEFAULT_FORMATTER.format(App.LATEST_DATE);
-            ImageDrawingService.drawHourly23Info(imageFile, targetFullPath);
+            ImageDrawingService.drawHourly23Info(imageFile, targetFullPath, currencyCode);
         }
         DateFileService.determineAndWriteNextDate(forexChartType);
     }
