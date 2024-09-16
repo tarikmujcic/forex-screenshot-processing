@@ -121,6 +121,8 @@ public class ScreenshotService {
         } else if (forexChartType == ForexChartType.HOURLY_23_LATEST) {
             String targetFullPath = targetDirectoryPath + "\\" + currencyCode + "\\" + ImageDrawingService.DEFAULT_FORMATTER.format(App.LATEST_DATE);
             ImageDrawingService.drawHourly23Info(imageFile, targetFullPath, currencyCode);
+        } else if (forexChartType == ForexChartType.FIVE_MIN_LATEST) {
+            ImageDrawingService.drawFiveMinuteLatestInfo(imageFile, targetDirectoryPath, currencyCode);
         }
         DateFileService.determineAndWriteNextDate(forexChartType);
     }

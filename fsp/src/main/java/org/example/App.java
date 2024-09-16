@@ -21,6 +21,8 @@ public class App {
     private static final String SOURCE_DIRECTORY_PATH = "C:\\US30\\Before";
     private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\After";
 
+    public static final String ROOT_DIRECTORY_PATH = "C:\\Users\\noman\\OneDrive\\Desktop\\Forex\\Backtest";
+
     private static final String TEST_SCREENSHOT_PATH = ScreenshotService.createFolderInPath("C:\\US30", "Check");
 
     public static LocalDate START_DATE;
@@ -36,10 +38,13 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = true;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.HOURLY_23_LATEST;
+    public static ForexChartType forexChartType = ForexChartType.FIVE_MIN_LATEST;
 
     public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
             List.of("U30USD", "SPXUSD", "NASUSD", "XAUUSD", "USOUSD", "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY"));
+
+    // Commented out most of the time and it should be used when you only want to process single Currency Code
+//    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(List.of("U30USD"));
 
 
     /**
@@ -56,7 +61,7 @@ public class App {
         START_DATE = DateFileService.getDateFromFile();
 
         // Handle special case of ForexChartType.DAILY_LATEST
-        if (forexChartType == ForexChartType.DAILY_LATEST || forexChartType == ForexChartType.HOURLY_23_LATEST) {
+        if (forexChartType == ForexChartType.DAILY_LATEST || forexChartType == ForexChartType.HOURLY_23_LATEST || forexChartType == ForexChartType.FIVE_MIN_LATEST) {
             for (String currencyCode : FOREX_CURRENCY_CODE_LIST) {
                 System.out.println("Hit B key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE));
                 while (!IS_TRIGGER_KEY_PRESSED) {

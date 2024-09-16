@@ -117,6 +117,12 @@ public class ImageDrawingService {
                 outputFile.mkdirs(); // Creates the directory and any necessary parent directories
             }
             ImageIO.write(image, "png", outputFile);
+
+            if (App.forexChartType == ForexChartType.HOURLY_23_LATEST) {
+                // write to root for easier access - as requested
+                File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-HOURLY-" + currencyCode + ".png");
+                ImageIO.write(image, "png", rootOutputFile);
+            }
             sourceImageFile.delete();
         } catch (IOException e) {
             System.out.println("Error processing image: " + sourceImageFile.getName());
@@ -248,6 +254,11 @@ public class ImageDrawingService {
                 outputFile.mkdirs(); // Creates the directory and any necessary parent directories
             }
             ImageIO.write(image, "png", outputFile);
+
+            // write to root for easier access - as requested
+            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-" + currencyCode + ".png");
+            ImageIO.write(image, "png", rootOutputFile);
+
             sourceImageFile.delete();
         } catch (IOException e) {
             System.out.println("Error processing image: " + sourceImageFile.getName());
@@ -297,6 +308,59 @@ public class ImageDrawingService {
             int imageId = InstanceCounterService.getAndIncrementWEEKLY_INSTANCE_COUNT();
             File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileNameForWeekly(imageId, startDate, currentDate));
             ImageIO.write(image, "png", outputFile);
+            sourceImageFile.delete();
+        } catch (IOException e) {
+            System.out.println("Error processing image: " + sourceImageFile.getName());
+        }
+    }
+
+    /**
+     * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
+     * <p>
+     * Creates a new image from the source and draws
+     * 1. Day and Date for the current date
+     * 2. Currency Code in the top left.
+     * @param sourceImageFile Image source file that will be edited
+     * @param targetDirectoryPath Path where the new file will be saved
+     * @param currencyCode Type of currency that will be drawn on image, but also determines the targetImagePath
+     */
+    public static void drawFiveMinuteLatestInfo(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
+        try {
+            targetDirectoryPath = targetDirectoryPath + "\\" + currencyCode + "\\" + DEFAULT_FORMATTER.format(App.LATEST_DATE);
+            BufferedImage image = ImageIO.read(sourceImageFile);
+            // Create a graphics object to draw on the image
+            Graphics2D g2d = image.createGraphics();
+
+            // Define font and color for drawing days of the week
+            g2d.setFont(DEFAULT_FONT_BIG);
+            g2d.setColor(Color.BLACK);
+
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+            int x = imageWidth / 6 * 5;
+            int y = imageHeight / 9 * 8;
+
+            LocalDate currentDate = App.LATEST_DATE;
+            String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
+            String date = currentDate.format(DEFAULT_FORMATTER);
+
+            g2d.drawString(dayOfWeek, x, y);
+            g2d.drawString(date, x, y + 35);
+
+            g2d.drawString(currencyCode + " - M5", 50, 80);
+
+            g2d.dispose();
+
+            File outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-M5.png");
+            if (!outputFile.exists()) {
+                outputFile.mkdirs(); // Creates the directory and any necessary parent directories
+            }
+            ImageIO.write(image, "png", outputFile);
+
+            // write to root for easier access - as requested
+            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-M5-" + currencyCode + ".png");
+            ImageIO.write(image, "png", rootOutputFile);
+
             sourceImageFile.delete();
         } catch (IOException e) {
             System.out.println("Error processing image: " + sourceImageFile.getName());
