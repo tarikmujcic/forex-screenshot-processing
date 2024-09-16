@@ -96,7 +96,9 @@ public class ImageDrawingService {
 
                 g2d.drawString(dayOfWeek, x, heightHelp);
                 g2d.drawString(date, x, heightHelp + 25);
-                draw9to10Line(g2d, imageWidth, i);
+                if (App.forexChartType == ForexChartType.HOURLY_23) {
+                    draw9to10Line(g2d, imageWidth, i);
+                }
                 x += (imageWidth / 5);
 
                 currentDate = currentDate.plusDays(1);
