@@ -246,7 +246,7 @@ public class ImageDrawingService {
 
             g2d.drawString(currencyCode, 50, 80);
 
-            g2d.setStroke(new BasicStroke(3.0f));
+            g2d.setStroke(new BasicStroke(1.0f));
             g2d.drawLine(LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE,
                     LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE + LINE_DAILY_LATEST_LENGTH);
 
