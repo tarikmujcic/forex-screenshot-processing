@@ -124,6 +124,7 @@ public class ImageDrawingService {
                 // write to root for easier access - as requested
                 File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-HOURLY-" + currencyCode + ".png");
                 ImageIO.write(image, "png", rootOutputFile);
+                ImageToClipboardService.copyImageToClipboard(rootOutputFile);
             }
             sourceImageFile.delete();
         } catch (IOException e) {
@@ -260,6 +261,7 @@ public class ImageDrawingService {
             // write to root for easier access - as requested
             File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-" + currencyCode + ".png");
             ImageIO.write(image, "png", rootOutputFile);
+            ImageToClipboardService.copyImageToClipboard(rootOutputFile);
 
             sourceImageFile.delete();
         } catch (IOException e) {
@@ -362,6 +364,7 @@ public class ImageDrawingService {
             // write to root for easier access - as requested
             File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-M5-" + currencyCode + ".png");
             ImageIO.write(image, "png", rootOutputFile);
+            ImageToClipboardService.copyImageToClipboard(rootOutputFile);
 
             sourceImageFile.delete();
         } catch (IOException e) {
