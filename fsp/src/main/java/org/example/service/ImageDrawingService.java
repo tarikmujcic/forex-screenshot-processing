@@ -125,6 +125,7 @@ public class ImageDrawingService {
                 File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-HOURLY-" + currencyCode + ".png");
                 ImageIO.write(image, "png", rootOutputFile);
                 ImageToClipboardService.copyImageToClipboard(rootOutputFile);
+                openImageInDefaultViewer(rootOutputFile);
             }
             sourceImageFile.delete();
         } catch (IOException e) {
@@ -262,6 +263,7 @@ public class ImageDrawingService {
             File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-" + currencyCode + ".png");
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
+            openImageInDefaultViewer(rootOutputFile);
 
             sourceImageFile.delete();
         } catch (IOException e) {
@@ -365,6 +367,7 @@ public class ImageDrawingService {
             File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-M5-" + currencyCode + ".png");
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
+            openImageInDefaultViewer(rootOutputFile);
 
             sourceImageFile.delete();
         } catch (IOException e) {
@@ -425,6 +428,18 @@ public class ImageDrawingService {
             int line_x_5 = LINE_9_10_X_COORDINATE + 4*(imageWidth / 5);
             g2d.drawLine(line_x_5, LINE_9_10_Y_COORDINATE, line_x_5, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH);
             g2d.drawString(LABEL_9_10, line_x_5 - 20, LINE_9_10_Y_COORDINATE + LINE_9_10_LENGTH + 20);
+        }
+    }
+
+    private static void openImageInDefaultViewer(File imageFile) {
+        if (Desktop.isDesktopSupported()) {
+            try {
+                Desktop.getDesktop().open(imageFile); // Opens the image in the default viewer
+            } catch (IOException e) {
+                System.err.println("Failed to open the image in the default viewer.");
+            }
+        } else {
+            System.err.println("Desktop is not supported on this platform.");
         }
     }
 }
