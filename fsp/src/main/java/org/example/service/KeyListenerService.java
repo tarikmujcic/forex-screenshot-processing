@@ -8,7 +8,7 @@ import org.example.App;
 
 public class KeyListenerService {
 
-    private static final int CONTINUE_KEY = NativeKeyEvent.VC_B;
+    private static final int CONTINUE_KEY = NativeKeyEvent.VC_F5;
     private static final int TOGGLE_AUTOMATION_KEY = NativeKeyEvent.VC_T;
 
     public static void initializeGlobalKeyListener() {

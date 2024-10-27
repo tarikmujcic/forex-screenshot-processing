@@ -31,9 +31,9 @@ public class ImageDrawingService {
     private static final int LINE_9_10_LENGTH = 600;
 
     // DAILY_LATEST COORDINATES
-    private static final int LINE_DAILY_LATEST_X_COORDINATE = 1828;
+    private static final int LINE_DAILY_LATEST_X_COORDINATE = 1800;
     private static final int LINE_DAILY_LATEST_Y_COORDINATE = 350;
-    private static final int LINE_DAILY_LATEST_LENGTH = 450;
+    private static final int LINE_DAILY_LATEST_LENGTH = 300;
 
 
     public static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("MM-dd-yyyy");

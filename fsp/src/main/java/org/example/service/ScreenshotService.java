@@ -123,6 +123,8 @@ public class ScreenshotService {
             ImageDrawingService.drawHourly23Info(imageFile, targetFullPath, currencyCode);
         } else if (forexChartType == ForexChartType.FIVE_MIN_LATEST) {
             ImageDrawingService.drawFiveMinuteLatestInfo(imageFile, targetDirectoryPath, currencyCode);
+        } else if (forexChartType == ForexChartType.FIVE_MIN_WHOLE_DAY) {
+            ImageDrawingService.drawFiveMinuteLatestInfo(imageFile, targetDirectoryPath, currencyCode);
         }
         DateFileService.determineAndWriteNextDate(forexChartType);
     }
