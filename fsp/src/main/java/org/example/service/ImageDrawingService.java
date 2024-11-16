@@ -375,6 +375,60 @@ public class ImageDrawingService {
         }
     }
 
+    public static void drawFiveMinuteWholeDayInfo(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
+        try {
+            targetDirectoryPath = targetDirectoryPath + "\\" + currencyCode + "\\" + DEFAULT_FORMATTER.format(App.START_DATE);
+            BufferedImage image = ImageIO.read(sourceImageFile);
+            // Create a graphics object to draw on the image
+            Graphics2D g2d = image.createGraphics();
+
+            // Define font and color for drawing days of the week
+            g2d.setFont(DEFAULT_FONT_BIG);
+            g2d.setColor(Color.BLACK);
+
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+            int x = imageWidth / 6 * 5;
+            int y = imageHeight / 9 * 8;
+
+            LocalDate currentDate = App.START_DATE;
+            String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
+            String date = currentDate.format(DEFAULT_FORMATTER);
+
+            g2d.drawString(dayOfWeek, x, y);
+            g2d.drawString(date, x, y + 35);
+
+            g2d.drawString(currencyCode + " - M5", 50, 80);
+
+            g2d.dispose();
+
+            File outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.START_DATE) + "-M5.png");
+            if (!outputFile.exists()) {
+                outputFile.mkdirs(); // Creates the directory and any necessary parent directories
+            }
+            ImageIO.write(image, "png", outputFile);
+
+            // write to root for easier access - as requested
+            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.START_DATE) + "-M5-" + currencyCode + ".png");
+            ImageIO.write(image, "png", rootOutputFile);
+            ImageToClipboardService.copyImageToClipboard(rootOutputFile);
+            openImageInDefaultViewer(rootOutputFile);
+
+            sourceImageFile.delete();
+
+            currentDate = currentDate.plusDays(1);
+            while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                    currentDate.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                    DateFileService.forexOffDays.contains(currentDate)) {
+                currentDate = currentDate.plusDays(1);
+            }
+
+            App.START_DATE = currentDate;
+        } catch (IOException e) {
+            System.out.println("Error processing image: " + sourceImageFile.getName());
+        }
+    }
+
     /**
      * Help method which updates the old screenshots with 9to10 line
      */

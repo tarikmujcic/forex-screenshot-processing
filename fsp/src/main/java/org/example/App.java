@@ -39,9 +39,8 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = false;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-//    public static ForexChartType forexChartType = ForexChartType.FIVE_MIN_LATEST;
-//public static ForexChartType forexChartType = ForexChartType.DAILY_LATEST;
     public static ForexChartType forexChartType = ForexChartType.FIVE_MIN_WHOLE_DAY;
+
     public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
 //            List.of("U30USD", "SPXUSD", "NASUSD", "XAUUSD", "USOUSD", "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY"));
             List.of("NASUSD"));
@@ -94,18 +93,19 @@ public class App {
 
         if (forexChartType == ForexChartType.FIVE_MIN_WHOLE_DAY) {
             for (String currencyCode : FOREX_CURRENCY_CODE_LIST) {
-
-                System.out.println("Hit F5 key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE) + " " + LATEST_DATE.getDayOfWeek());
-                while (!IS_TRIGGER_KEY_PRESSED) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                while (START_DATE.isBefore(TODAY)) {
+                    System.out.println("Hit F5 key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(START_DATE) + " " + START_DATE.getDayOfWeek());
+                    while (!IS_TRIGGER_KEY_PRESSED) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
+                    ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
+                    ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH, currencyCode);
+                    IS_TRIGGER_KEY_PRESSED = false;
                 }
-                ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
-                ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH, currencyCode);
-                IS_TRIGGER_KEY_PRESSED = false;
             }
             System.out.println("Execution of ForexChartType.DAILY_LATEST completed successfully.");
             return; // exit out of the application
