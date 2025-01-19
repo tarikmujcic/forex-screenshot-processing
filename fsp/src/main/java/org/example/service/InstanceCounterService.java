@@ -100,7 +100,7 @@ public class InstanceCounterService {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(INSTANCE_COUNTER_FIVE_MIN_FILE_PATH))) {
             writer.write(String.valueOf(++FIVE_MIN_INSTANCE_COUNT));
         } catch (IOException e) {
-            throw new RuntimeException("Unable to increment instance count for HOURLY_1");
+            throw new RuntimeException("Unable to increment instance count for FIVE_MIN");
         }
     }
 

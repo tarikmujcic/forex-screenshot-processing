@@ -37,6 +37,7 @@ public class ImageDrawingService {
 
 
     public static final DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("MM-dd-yyyy");
+    public static final DateTimeFormatter HOUR_MINUTE_FORMATTER = DateTimeFormatter.ofPattern("hh-mm-a");
 
     /**
      * Be careful when using this method. IT DELETES THE SOURCE IMAGE!
@@ -357,14 +358,17 @@ public class ImageDrawingService {
 
             g2d.dispose();
 
-            File outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-M5.png");
+            File outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                    "-M5" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + ".png");
+
             if (!outputFile.exists()) {
                 outputFile.mkdirs(); // Creates the directory and any necessary parent directories
             }
             ImageIO.write(image, "png", outputFile);
 
             // write to root for easier access - as requested
-            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-M5-" + currencyCode + ".png");
+            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                    "-M5-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
             openImageInDefaultViewer(rootOutputFile);

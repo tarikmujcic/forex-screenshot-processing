@@ -19,8 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-    private static final String SOURCE_DIRECTORY_PATH = "C:\\Forex";
-    private static final String TARGET_DIRECTORY_PATH = "C:\\Forex";
+    private static final String SOURCE_DIRECTORY_PATH = "C:\\Forex\\Source";
+    private static final String TARGET_DIRECTORY_PATH = "C:\\Forex\\Target";
     //    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
     public static final String ROOT_DIRECTORY_PATH = "C:\\Forex";
 
@@ -66,7 +66,7 @@ public class App {
         // Handle special case of ForexChartType.DAILY_LATEST
         if (forexChartType == ForexChartType.DAILY_LATEST || forexChartType == ForexChartType.HOURLY_23_LATEST || forexChartType == ForexChartType.FIVE_MIN_LATEST) {
             for (String currencyCode : FOREX_CURRENCY_CODE_LIST) {
-                System.out.println("Hit B key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE));
+                System.out.println("Hit F5 key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE));
                 while (!IS_TRIGGER_KEY_PRESSED) {
                     try {
                         Thread.sleep(100);
