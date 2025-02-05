@@ -21,7 +21,7 @@ public class ImageDrawingServiceTest extends TestCase {
 
     public void testDrawDailyInfo() {
         File file = ScreenshotService.takeScreenshot(DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
-        ImageDrawingService.drawDailyInfo(file, DIRECTORY_PATH);
+        ImageDrawingService.drawDailyInfo(file, DIRECTORY_PATH, "USDJPY");
     }
 
     public void testDrawWeeklyInfo() {

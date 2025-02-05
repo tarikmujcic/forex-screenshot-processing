@@ -113,7 +113,7 @@ public class ScreenshotService {
         } else if (forexChartType == ForexChartType.FOUR_HOUR) {
             processFourHourImage(imageFile, targetDirectoryPath);
         } else if (forexChartType == ForexChartType.DAILY) {
-            ImageDrawingService.drawDailyInfo(imageFile, targetDirectoryPath);
+            ImageDrawingService.drawDailyInfo(imageFile, targetDirectoryPath, currencyCode);
         } else if (forexChartType == ForexChartType.WEEKLY) {
             ImageDrawingService.drawWeeklyInfo(imageFile, targetDirectoryPath);
         } else if (forexChartType == ForexChartType.DAILY_LATEST) {

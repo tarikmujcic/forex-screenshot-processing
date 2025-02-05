@@ -39,12 +39,11 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = false;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.FIVE_MIN_LATEST;
+    public static ForexChartType forexChartType = ForexChartType.DAILY;
 
     //    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
 //            List.of("U30USD", "SPXUSD", "NASUSD", "GOLD", "OIL", "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"));
-    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
-            List.of("USDJPY"));
+    public static final String FOREX_CURRENCY_CODE = "USDJPY";
 
     // Commented out most of the time and it should be used when you only want to process single Currency Code
 //    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(List.of("U30USD"));
@@ -64,20 +63,19 @@ public class App {
         START_DATE = DateFileService.getDateFromFile();
 
         // Handle special case of ForexChartType.DAILY_LATEST
-        if (forexChartType == ForexChartType.DAILY_LATEST || forexChartType == ForexChartType.HOURLY_23_LATEST || forexChartType == ForexChartType.FIVE_MIN_LATEST) {
-            for (String currencyCode : FOREX_CURRENCY_CODE_LIST) {
-                System.out.println("Hit F5 key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE) + " " + LATEST_DATE.getDayOfWeek());
-                while (!IS_TRIGGER_KEY_PRESSED) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+        if (forexChartType == ForexChartType.DAILY_LATEST || forexChartType == ForexChartType.HOURLY_23_LATEST ||
+                forexChartType == ForexChartType.FIVE_MIN_LATEST) {
+            System.out.println("Hit F5 key to process the screenshot for the currency: " + FOREX_CURRENCY_CODE + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE) + " " + LATEST_DATE.getDayOfWeek());
+            while (!IS_TRIGGER_KEY_PRESSED) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-                ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
-                ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH, currencyCode);
-                IS_TRIGGER_KEY_PRESSED = false;
             }
+            ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
+            ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH, FOREX_CURRENCY_CODE);
+            IS_TRIGGER_KEY_PRESSED = false;
             System.out.println("Execution of ForexChartType.DAILY_LATEST completed successfully.");
             return; // exit out of the application
         }
@@ -87,7 +85,9 @@ public class App {
         }
         while (START_DATE.isBefore(TODAY)) {
             if (!IS_FULLY_AUTOMATED) {
-                System.out.println("Hit B key to process the screenshot");
+                LocalDate dateFromFile = DateFileService.getDateFromFile();
+                System.out.println("Hit F5 key to process the screenshot for the currency: " + FOREX_CURRENCY_CODE + " and date from file: "
+                        + ImageDrawingService.DEFAULT_FORMATTER.format(dateFromFile) + " " + dateFromFile.getDayOfWeek());
                 while (!IS_TRIGGER_KEY_PRESSED) {
                     try {
                         Thread.sleep(100); // Check every 100 milliseconds
@@ -99,7 +99,7 @@ public class App {
 
             if (FocusedAppCheckerService.isTraderAppFocused()) {
                 ScreenshotService.takeScreenshot(SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
-                ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH);
+                ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH, FOREX_CURRENCY_CODE);
                 IS_TRIGGER_KEY_PRESSED = false;
 
                 int numberOfPresses = forexChartType == ForexChartType.HOURLY_23 ? DateFileService.getForexHoursForDate(START_DATE.plusDays(1)) : 1;

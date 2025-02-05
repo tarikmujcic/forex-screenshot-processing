@@ -172,7 +172,7 @@ public class ImageDrawingService {
      * @param sourceImageFile Image source file that will be edited
      * @param targetDirectoryPath Path where the new file will be saved
      */
-    public static void drawDailyInfo(File sourceImageFile, String targetDirectoryPath) {
+    public static void drawDailyInfo(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
         try {
             App.START_DATE = DateFileService.getDateFromFile();
             BufferedImage image = ImageIO.read(sourceImageFile);
@@ -194,6 +194,7 @@ public class ImageDrawingService {
 
             g2d.drawString(dayOfWeek, x, y);
             g2d.drawString(date, x, y + 25);
+            g2d.drawString(currencyCode + " - Daily", 50, 80);
 
             currentDate = currentDate.plusDays(1);
             while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
@@ -204,10 +205,11 @@ public class ImageDrawingService {
 
             g2d.dispose();
             int imageId = InstanceCounterService.getAndIncrementDAILY_INSTANCE_COUNT();
-            File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileNameForDaily(imageId));
+            File outputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator +
+                    DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-" + currencyCode + ".png");
             System.out.println("Output file: " + outputFile.getAbsolutePath());
             ImageIO.write(image, "png", outputFile);
-            sourceImageFile.delete();
+            openImageInDefaultViewer(outputFile);
         } catch (IOException e) {
             System.out.println("Error processing image: " + sourceImageFile.getName());
         }
