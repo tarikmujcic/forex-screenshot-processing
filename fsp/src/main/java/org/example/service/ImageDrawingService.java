@@ -205,6 +205,7 @@ public class ImageDrawingService {
             g2d.dispose();
             int imageId = InstanceCounterService.getAndIncrementDAILY_INSTANCE_COUNT();
             File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileNameForDaily(imageId));
+            System.out.println("Output file: " + outputFile.getAbsolutePath());
             ImageIO.write(image, "png", outputFile);
             sourceImageFile.delete();
         } catch (IOException e) {
@@ -246,11 +247,11 @@ public class ImageDrawingService {
             g2d.drawString(dayOfWeek, x, y);
             g2d.drawString(date, x, y + 35);
 
-            g2d.drawString(currencyCode, 50, 80);
+            g2d.drawString(currencyCode + " - Daily", 50, 80);
 
             g2d.setStroke(new BasicStroke(1.0f));
-            g2d.drawLine(LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE,
-                    LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE + LINE_DAILY_LATEST_LENGTH);
+//            g2d.drawLine(LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE,
+//                    LINE_DAILY_LATEST_X_COORDINATE, LINE_DAILY_LATEST_Y_COORDINATE + LINE_DAILY_LATEST_LENGTH);
 
             g2d.dispose();
 
@@ -266,7 +267,7 @@ public class ImageDrawingService {
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
             openImageInDefaultViewer(rootOutputFile);
 
-            sourceImageFile.delete();
+//            sourceImageFile.delete();
         } catch (IOException e) {
             System.out.println("Error processing image: " + sourceImageFile.getName());
         }

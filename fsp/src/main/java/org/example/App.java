@@ -22,9 +22,9 @@ public class App {
     private static final String SOURCE_DIRECTORY_PATH = "C:\\Forex\\Source";
     private static final String TARGET_DIRECTORY_PATH = "C:\\Forex\\Target";
     //    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
-    public static final String ROOT_DIRECTORY_PATH = "C:\\Forex";
+    public static final String ROOT_DIRECTORY_PATH = "C:\\Forex\\Backtest";
 
-    private static final String TEST_SCREENSHOT_PATH = ScreenshotService.createFolderInPath("C:\\US30", "Check");
+    private static final String TEST_SCREENSHOT_PATH = ScreenshotService.createFolderInPath("C:\\Forex", "Check");
 
     public static LocalDate START_DATE;
     public static LocalDate TODAY = LocalDate.now();
@@ -42,9 +42,9 @@ public class App {
     public static ForexChartType forexChartType = ForexChartType.FIVE_MIN_LATEST;
 
     //    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
-//            List.of("U30USD", "SPXUSD", "NASUSD", "XAUUSD", "USOUSD", "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY"));
+//            List.of("U30USD", "SPXUSD", "NASUSD", "GOLD", "OIL", "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"));
     public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
-            List.of("U30USD"));
+            List.of("USDJPY"));
 
     // Commented out most of the time and it should be used when you only want to process single Currency Code
 //    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(List.of("U30USD"));
@@ -66,7 +66,7 @@ public class App {
         // Handle special case of ForexChartType.DAILY_LATEST
         if (forexChartType == ForexChartType.DAILY_LATEST || forexChartType == ForexChartType.HOURLY_23_LATEST || forexChartType == ForexChartType.FIVE_MIN_LATEST) {
             for (String currencyCode : FOREX_CURRENCY_CODE_LIST) {
-                System.out.println("Hit F5 key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE));
+                System.out.println("Hit F5 key to process the screenshot for the currency: " + currencyCode + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE) + " " + LATEST_DATE.getDayOfWeek());
                 while (!IS_TRIGGER_KEY_PRESSED) {
                     try {
                         Thread.sleep(100);
