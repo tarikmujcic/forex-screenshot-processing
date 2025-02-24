@@ -21,8 +21,10 @@ import java.util.List;
 public class App {
     private static final String SOURCE_DIRECTORY_PATH = "C:\\Forex\\Source";
     private static final String TARGET_DIRECTORY_PATH = "C:\\Forex\\Target";
+    private static final String SOURCE_DIRECTORY_PATH = "F:\\Forex\\Source";
+    private static final String TARGET_DIRECTORY_PATH = "F:\\Forex\\Target";
     //    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
-    public static final String ROOT_DIRECTORY_PATH = "C:\\Forex\\Backtest";
+    public static final String ROOT_DIRECTORY_PATH = "F:\\Forex\\Backtest";
 
     private static final String TEST_SCREENSHOT_PATH = ScreenshotService.createFolderInPath("C:\\Forex", "Check");
 
@@ -55,6 +57,8 @@ public class App {
      */
     public static LocalDate LATEST_DATE = LocalDate.now();
 
+    public static LocalDate LATEST_DATE = LocalDate.now().minusDays(0);
+//    public static LocalDate LATEST_DATE = LocalDate.parse("2025-01-03");
     public static void main(String[] args) throws InterruptedException {
         ScreenshotService.createFolderInPath(TARGET_DIRECTORY_PATH, "Debug");
         KeyListenerService.initializeGlobalKeyListener();

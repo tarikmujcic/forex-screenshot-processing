@@ -206,7 +206,7 @@ public class ImageDrawingService {
             g2d.dispose();
             int imageId = InstanceCounterService.getAndIncrementDAILY_INSTANCE_COUNT();
             File outputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator +
-                    DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-" + currencyCode + ".png");
+                    date + "-" + currencyCode + ".png");
             System.out.println("Output file: " + outputFile.getAbsolutePath());
             ImageIO.write(image, "png", outputFile);
             openImageInDefaultViewer(outputFile);
