@@ -72,17 +72,18 @@ public class ScreenshotService {
     }
 
     private static File saveImage(BufferedImage image, String folderPath, String filename) {
-        try {
-            File folder = new File(folderPath);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            File outputFile = new File(folder, filename);
-            ImageIO.write(image, "png", outputFile);
-            return outputFile;
+        File folder = new File(folderPath);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        File outputFile = new File(folder, filename);
+
+        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+            ImageIO.write(image, "png", fos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        return outputFile;
     }
 
     public static void processScreenshot(ForexChartType forexChartType, String sourceDirectoryPath, String targetDirectoryPath) {

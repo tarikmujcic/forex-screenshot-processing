@@ -264,11 +264,12 @@ public class ImageDrawingService {
             ImageIO.write(image, "png", outputFile);
 
             // write to root for easier access - as requested
-            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-" + currencyCode + ".png");
+            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-"
+                    + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + "-" + currencyCode + ".png");
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
             openImageInDefaultViewer(rootOutputFile);
-
+            System.out.println("File saved to: " + rootOutputFile.getAbsolutePath());
 //            sourceImageFile.delete();
         } catch (IOException e) {
             System.out.println("Error processing image: " + sourceImageFile.getName());
@@ -337,7 +338,11 @@ public class ImageDrawingService {
     public static void drawFiveMinuteLatestInfo(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
         try {
             targetDirectoryPath = targetDirectoryPath + "\\" + currencyCode + "\\" + DEFAULT_FORMATTER.format(App.LATEST_DATE);
-            BufferedImage image = ImageIO.read(sourceImageFile);
+//            BufferedImage image = ImageIO.read(sourceImageFile);
+            BufferedImage image;
+            try (FileInputStream fis = new FileInputStream(sourceImageFile)) {
+                image = ImageIO.read(fis);
+            }
             // Create a graphics object to draw on the image
             Graphics2D g2d = image.createGraphics();
 
@@ -376,7 +381,9 @@ public class ImageDrawingService {
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
             openImageInDefaultViewer(rootOutputFile);
 
-            sourceImageFile.delete();
+//            sourceImageFile.delete();
+            image.flush();
+            System.gc();
         } catch (IOException e) {
             System.out.println("Error processing image: " + sourceImageFile.getName());
         }

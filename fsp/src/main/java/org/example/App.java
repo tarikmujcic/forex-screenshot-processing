@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-    private static final String SOURCE_DIRECTORY_PATH = "C:\\Forex\\Source";
-    private static final String TARGET_DIRECTORY_PATH = "C:\\Forex\\Target";
     private static final String SOURCE_DIRECTORY_PATH = "F:\\Forex\\Source";
     private static final String TARGET_DIRECTORY_PATH = "F:\\Forex\\Target";
     //    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
@@ -43,9 +41,8 @@ public class App {
 
     public static ForexChartType forexChartType = ForexChartType.DAILY;
 
-    //    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(
-//            List.of("U30USD", "SPXUSD", "NASUSD", "GOLD", "OIL", "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"));
-    public static final String FOREX_CURRENCY_CODE = "USDJPY";
+//    "NASUSD" "OIL" "U30USD", "SPXUSD", , "GOLD" "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"
+    public static final String FOREX_CURRENCY_CODE = "GOLD";
 
     // Commented out most of the time and it should be used when you only want to process single Currency Code
 //    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(List.of("U30USD"));
