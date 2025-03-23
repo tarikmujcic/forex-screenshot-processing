@@ -7,6 +7,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -207,6 +208,75 @@ public class ImageDrawingService {
             int imageId = InstanceCounterService.getAndIncrementDAILY_INSTANCE_COUNT();
             File outputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator +
                     date + "-" + currencyCode + ".png");
+            System.out.println("Output file: " + outputFile.getAbsolutePath());
+            ImageIO.write(image, "png", outputFile);
+            openImageInDefaultViewer(outputFile);
+        } catch (IOException e) {
+            System.out.println("Error processing image: " + sourceImageFile.getName());
+        }
+    }
+
+    public static void drawDailyInfo5(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
+        try {
+            App.START_DATE = DateFileService.getDateFromFile();
+            BufferedImage image = ImageIO.read(sourceImageFile);
+            // Create a graphics object to draw on the image
+            Graphics2D g2d = image.createGraphics();
+
+            // Define font and color for drawing days of the week
+            g2d.setFont(DEFAULT_FONT);
+            g2d.setColor(Color.BLACK);
+
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+            int x = imageWidth / 9 * 8;
+            int y = imageHeight / 9 * 8;
+            LocalDate currentDate = DateFileService.getDateFromFile();
+            assert currentDate != null;
+            String friday = "Friday";
+            String thursday = "Thursday";
+            String wednesday = "Wednesday";
+            String tuesday = "Tuesday";
+            String monday = "Monday";
+
+            String fridayDate = currentDate.format(DEFAULT_FORMATTER);
+            String thursdayDate = currentDate.minusDays(1).format(DEFAULT_FORMATTER);
+            String wenesdayDate = currentDate.minusDays(2).format(DEFAULT_FORMATTER);
+            String tuesdayDate = currentDate.minusDays(3).format(DEFAULT_FORMATTER);
+            String mondayDate = currentDate.minusDays(4).format(DEFAULT_FORMATTER);
+
+            g2d.drawString(friday, x, y);
+            g2d.drawString(fridayDate, x, y + 25);
+
+            int thursdayX = x - 200;
+            g2d.drawString(thursday, thursdayX, y);
+            g2d.drawString(thursdayDate, thursdayX, y + 25);
+
+            int wednesdayX = x - 400;
+            g2d.drawString(wednesday, wednesdayX, y);
+            g2d.drawString(wenesdayDate, wednesdayX, y + 25);
+
+            int tuesdayX = x - 620;
+            g2d.drawString(tuesday, tuesdayX, y);
+            g2d.drawString(tuesdayDate, tuesdayX, y + 25);
+
+            int mondayX = x - 820;
+            g2d.drawString(monday, mondayX, y);
+            g2d.drawString(mondayDate, mondayX, y + 25);
+
+            g2d.drawString(currencyCode + " - Daily", 50, 80);
+
+            currentDate = currentDate.plusDays(1);
+            while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                    currentDate.getDayOfWeek() == DayOfWeek.SUNDAY ||
+                    DateFileService.forexOffDays.contains(currentDate)) {
+                currentDate = currentDate.plusDays(1);
+            }
+
+            g2d.dispose();
+            int imageId = InstanceCounterService.getAndIncrementDAILY_INSTANCE_COUNT();
+            File outputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator +
+                    fridayDate + "-" + currencyCode + ".png");
             System.out.println("Output file: " + outputFile.getAbsolutePath());
             ImageIO.write(image, "png", outputFile);
             openImageInDefaultViewer(outputFile);

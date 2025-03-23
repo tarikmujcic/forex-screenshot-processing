@@ -119,7 +119,10 @@ public class ScreenshotService {
             ImageDrawingService.drawWeeklyInfo(imageFile, targetDirectoryPath);
         } else if (forexChartType == ForexChartType.DAILY_LATEST) {
             ImageDrawingService.drawDailyLatestInfo(imageFile, targetDirectoryPath, currencyCode);
-        } else if (forexChartType == ForexChartType.HOURLY_23_LATEST) {
+        } else if (forexChartType == ForexChartType.DAILY_5) {
+            ImageDrawingService.drawDailyInfo5(imageFile, targetDirectoryPath, currencyCode);
+        }
+        else if (forexChartType == ForexChartType.HOURLY_23_LATEST) {
             String targetFullPath = targetDirectoryPath + "\\" + currencyCode + "\\" + ImageDrawingService.DEFAULT_FORMATTER.format(App.LATEST_DATE);
             ImageDrawingService.drawHourly23Info(imageFile, targetFullPath, currencyCode);
         } else if (forexChartType == ForexChartType.FIVE_MIN_LATEST) {

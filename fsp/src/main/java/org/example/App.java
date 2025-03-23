@@ -39,7 +39,7 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = false;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.DAILY;
+    public static ForexChartType forexChartType = ForexChartType.DAILY_5;
 
 //    "NASUSD" "OIL" "U30USD", "SPXUSD", , "GOLD" "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"
     public static final String FOREX_CURRENCY_CODE = "GOLD";
@@ -52,10 +52,8 @@ public class App {
      * Used for the ForexChartType.DAILY_LATEST to Highlight which day is being screenshotted.
      * It takes today's date by default, but you can change it with e.g LocalDate.now().plusDays(1) or .minusDays(1)
      */
-    public static LocalDate LATEST_DATE = LocalDate.now();
-
-    public static LocalDate LATEST_DATE = LocalDate.now().minusDays(0);
-//    public static LocalDate LATEST_DATE = LocalDate.parse("2025-01-03");
+    public static LocalDate LATEST_DATE = LocalDate.now().minusDays(1);
+//    public static LocalDate LATEST_DATE = LocalDate.parse("2025-01-31");
     public static void main(String[] args) throws InterruptedException {
         ScreenshotService.createFolderInPath(TARGET_DIRECTORY_PATH, "Debug");
         KeyListenerService.initializeGlobalKeyListener();
@@ -64,7 +62,9 @@ public class App {
         START_DATE = DateFileService.getDateFromFile();
 
         // Handle special case of ForexChartType.DAILY_LATEST
-        if (forexChartType == ForexChartType.DAILY_LATEST || forexChartType == ForexChartType.HOURLY_23_LATEST ||
+        if (forexChartType == ForexChartType.DAILY_LATEST ||
+                forexChartType == ForexChartType.DAILY_5 ||
+                forexChartType == ForexChartType.HOURLY_23_LATEST ||
                 forexChartType == ForexChartType.FIVE_MIN_LATEST) {
             System.out.println("Hit F5 key to process the screenshot for the currency: " + FOREX_CURRENCY_CODE + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE) + " " + LATEST_DATE.getDayOfWeek());
             while (!IS_TRIGGER_KEY_PRESSED) {
