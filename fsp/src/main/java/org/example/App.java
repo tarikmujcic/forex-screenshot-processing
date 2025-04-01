@@ -5,7 +5,6 @@ import org.example.comparators.ImageComparator;
 import org.example.enums.ForexChartType;
 import org.example.service.DateFileService;
 import org.example.service.FocusedAppCheckerService;
-import org.example.service.InstanceCounterService;
 import org.example.service.KeyListenerService;
 import org.example.service.KeyPressSimulationService;
 import org.example.service.ScreenshotService;
@@ -14,17 +13,14 @@ import org.example.service.ImageDrawingService;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class App {
-    private static final String SOURCE_DIRECTORY_PATH = "F:\\Forex\\Source";
-    private static final String TARGET_DIRECTORY_PATH = "F:\\Forex\\Target";
+    public static final String SOURCE_DIRECTORY_PATH = "F:\\Forex\\Source";
+    public static final String TARGET_DIRECTORY_PATH = "F:\\Forex\\Target";
     //    private static final String TARGET_DIRECTORY_PATH = "C:\\US30\\FIVE_MIN";
     public static final String ROOT_DIRECTORY_PATH = "F:\\Forex\\Backtest";
 
-    private static final String TEST_SCREENSHOT_PATH = ScreenshotService.createFolderInPath("C:\\Forex", "Check");
+    public static final String TEST_SCREENSHOT_PATH = ScreenshotService.createFolderInPath("C:\\Forex", "Check");
 
     public static LocalDate START_DATE;
     public static LocalDate TODAY = LocalDate.now();
@@ -39,7 +35,7 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = false;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.DAILY_5;
+    public static ForexChartType forexChartType = ForexChartType.FIVE_MIN_LATEST;
 
 //    "NASUSD" "OIL" "U30USD", "SPXUSD", , "GOLD" "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"
     public static final String FOREX_CURRENCY_CODE = "GOLD";
@@ -52,12 +48,12 @@ public class App {
      * Used for the ForexChartType.DAILY_LATEST to Highlight which day is being screenshotted.
      * It takes today's date by default, but you can change it with e.g LocalDate.now().plusDays(1) or .minusDays(1)
      */
-    public static LocalDate LATEST_DATE = LocalDate.now().minusDays(1);
-//    public static LocalDate LATEST_DATE = LocalDate.parse("2025-01-31");
+//    public static LocalDate LATEST_DATE = LocalDate.now().minusDays(4);
+    public static LocalDate LATEST_DATE = LocalDate.parse("2025-03-18");
     public static void main(String[] args) throws InterruptedException {
         ScreenshotService.createFolderInPath(TARGET_DIRECTORY_PATH, "Debug");
         KeyListenerService.initializeGlobalKeyListener();
-        InstanceCounterService.initializeInstanceCounters();
+//        InstanceCounterService.initializeInstanceCounters();
 //        Thread.sleep(5000); // Wait for 5s at the start
         START_DATE = DateFileService.getDateFromFile();
 

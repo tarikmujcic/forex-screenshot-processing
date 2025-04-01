@@ -41,6 +41,14 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+
+      <!-- Dependency for JCalendar -->
+      <dependency>
+          <groupId>com.toedter</groupId>
+          <artifactId>jcalendar</artifactId>
+          <version>1.4</version>
+      </dependency>
+
   </dependencies>
     <build>
         <plugins>

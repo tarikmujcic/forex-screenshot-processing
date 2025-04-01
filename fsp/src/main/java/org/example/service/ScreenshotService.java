@@ -120,7 +120,7 @@ public class ScreenshotService {
         } else if (forexChartType == ForexChartType.DAILY_LATEST) {
             ImageDrawingService.drawDailyLatestInfo(imageFile, targetDirectoryPath, currencyCode);
         } else if (forexChartType == ForexChartType.DAILY_5) {
-            ImageDrawingService.drawDailyInfo5(imageFile, targetDirectoryPath, currencyCode);
+            ImageDrawingService.drawDailyInfo6(imageFile, targetDirectoryPath, currencyCode);
         }
         else if (forexChartType == ForexChartType.HOURLY_23_LATEST) {
             String targetFullPath = targetDirectoryPath + "\\" + currencyCode + "\\" + ImageDrawingService.DEFAULT_FORMATTER.format(App.LATEST_DATE);

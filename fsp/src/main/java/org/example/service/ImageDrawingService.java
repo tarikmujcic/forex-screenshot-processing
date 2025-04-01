@@ -207,6 +207,7 @@ public class ImageDrawingService {
             g2d.dispose();
             int imageId = InstanceCounterService.getAndIncrementDAILY_INSTANCE_COUNT();
             File outputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator +
+                    "-" + dayOfWeek + "-" +
                     date + "-" + currencyCode + ".png");
             System.out.println("Output file: " + outputFile.getAbsolutePath());
             ImageIO.write(image, "png", outputFile);
@@ -216,7 +217,7 @@ public class ImageDrawingService {
         }
     }
 
-    public static void drawDailyInfo5(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
+    public static void drawDailyInfo6(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
         try {
             App.START_DATE = DateFileService.getDateFromFile();
             BufferedImage image = ImageIO.read(sourceImageFile);
@@ -244,25 +245,32 @@ public class ImageDrawingService {
             String wenesdayDate = currentDate.minusDays(2).format(DEFAULT_FORMATTER);
             String tuesdayDate = currentDate.minusDays(3).format(DEFAULT_FORMATTER);
             String mondayDate = currentDate.minusDays(4).format(DEFAULT_FORMATTER);
+            String previousWeekFriday = currentDate.minusDays(7).format(DEFAULT_FORMATTER);
+            System.out.println("previousWeekFriday: " + previousWeekFriday);
 
-            g2d.drawString(friday, x, y);
-            g2d.drawString(fridayDate, x, y + 25);
+            int fridayX = x - 200;
+            g2d.drawString(friday, fridayX, y);
+            g2d.drawString(fridayDate, fridayX, y + 25);
 
-            int thursdayX = x - 200;
+            int thursdayX = x - 400;
             g2d.drawString(thursday, thursdayX, y);
             g2d.drawString(thursdayDate, thursdayX, y + 25);
 
-            int wednesdayX = x - 400;
+            int wednesdayX = x - 620;
             g2d.drawString(wednesday, wednesdayX, y);
             g2d.drawString(wenesdayDate, wednesdayX, y + 25);
 
-            int tuesdayX = x - 620;
+            int tuesdayX = x - 840;
             g2d.drawString(tuesday, tuesdayX, y);
             g2d.drawString(tuesdayDate, tuesdayX, y + 25);
 
-            int mondayX = x - 820;
+            int mondayX = x - 1080;
             g2d.drawString(monday, mondayX, y);
             g2d.drawString(mondayDate, mondayX, y + 25);
+
+            int previousWeekFridayX = x - 1310;
+            g2d.drawString(friday, previousWeekFridayX, y);
+            g2d.drawString(previousWeekFriday, previousWeekFridayX, y + 25);
 
             g2d.drawString(currencyCode + " - Daily", 50, 80);
 
@@ -274,12 +282,11 @@ public class ImageDrawingService {
             }
 
             g2d.dispose();
-            int imageId = InstanceCounterService.getAndIncrementDAILY_INSTANCE_COUNT();
-            File outputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator +
-                    fridayDate + "-" + currencyCode + ".png");
-            System.out.println("Output file: " + outputFile.getAbsolutePath());
-            ImageIO.write(image, "png", outputFile);
-            openImageInDefaultViewer(outputFile);
+            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                    "-Daily-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
+            System.out.println("Output file: " + rootOutputFile.getAbsolutePath());
+            ImageIO.write(image, "png", rootOutputFile);
+            openImageInDefaultViewer(rootOutputFile);
         } catch (IOException e) {
             System.out.println("Error processing image: " + sourceImageFile.getName());
         }
@@ -334,8 +341,9 @@ public class ImageDrawingService {
             ImageIO.write(image, "png", outputFile);
 
             // write to root for easier access - as requested
-            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) + "-"
-                    + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + "-" + currencyCode + ".png");
+            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                    "-" + dayOfWeek + "-" +
+                    HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + "-" + currencyCode + ".png");
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
             openImageInDefaultViewer(rootOutputFile);
@@ -437,6 +445,7 @@ public class ImageDrawingService {
             g2d.dispose();
 
             File outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                    "-" + dayOfWeek +
                     "-M5" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + ".png");
 
             if (!outputFile.exists()) {
@@ -446,6 +455,7 @@ public class ImageDrawingService {
 
             // write to root for easier access - as requested
             File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                    "-" + dayOfWeek +
                     "-M5-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
@@ -493,12 +503,14 @@ public class ImageDrawingService {
             ImageIO.write(image, "png", outputFile);
 
             // write to root for easier access - as requested
-            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.START_DATE) + "-M5-" + currencyCode + ".png");
+            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.START_DATE) +
+                    "-" + dayOfWeek +
+                    "-M5-" + currencyCode + ".png");
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
             openImageInDefaultViewer(rootOutputFile);
 
-            sourceImageFile.delete();
+//            sourceImageFile.delete();
 
             currentDate = currentDate.plusDays(1);
             while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
