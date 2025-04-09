@@ -283,7 +283,6 @@ public class UserInterface extends JFrame {
         }
     }
 
-    // Formats a LocalDate as "MM-dd-yyyy EEEE".
     private String formatDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy EEEE");
         return formatter.format(date);
