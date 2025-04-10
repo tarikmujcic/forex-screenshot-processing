@@ -40,22 +40,21 @@ public class UserInterface extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 350);
 
-        // Currency selection panel.
+        // Currency selection panel using radio buttons.
         JPanel currencyPanel = new JPanel();
         JLabel currencyLabel = new JLabel("Select Currency: ");
         currencyPanel.add(currencyLabel);
 
-        // Create radio buttons for each currency.
         currencyRadioButtons = new JRadioButton[CURRENCY_CODES.length];
         currencyButtonGroup = new ButtonGroup();
-        JPanel currencyRadioPanel = new JPanel(new GridLayout(0, 3)); // 3 columns layout
+        JPanel currencyRadioPanel = new JPanel(new GridLayout(0, 3)); // 3-column layout
         for (int i = 0; i < CURRENCY_CODES.length; i++) {
             String code = CURRENCY_CODES[i];
             JRadioButton rb = new JRadioButton(code);
             currencyRadioButtons[i] = rb;
             currencyButtonGroup.add(rb);
             currencyRadioPanel.add(rb);
-            // Select default currency ("GOLD")
+            // Preselect default currency ("GOLD")
             if (code.equals(App.FOREX_CURRENCY_CODE)) {
                 rb.setSelected(true);
             }
@@ -74,15 +73,17 @@ public class UserInterface extends JFrame {
         });
         currencyPanel.add(copyCurrencyButton);
 
-        // Create buttons for Daily Latest, Five Minute Latest, Pick Date, and Yesterday.
+        // Create buttons for processing screenshots.
         JButton dailyLatestButton = new JButton("Daily Latest");
         JButton fiveMinuteLatestButton = new JButton("Five Minute Latest");
+        JButton oneMinuteLatestButton = new JButton("One Minute Latest");
         JButton pickDateButton = new JButton("Pick Date");
         JButton yesterdayButton = new JButton("Yesterday");
 
         JPanel actionButtonPanel = new JPanel();
         actionButtonPanel.add(dailyLatestButton);
         actionButtonPanel.add(fiveMinuteLatestButton);
+        actionButtonPanel.add(oneMinuteLatestButton); // New button for M1
         actionButtonPanel.add(pickDateButton);
         actionButtonPanel.add(yesterdayButton);
 
@@ -98,12 +99,12 @@ public class UserInterface extends JFrame {
             clipboard.setContents(selection, null);
         });
 
-        // Panel to hold the date label and copy date button.
+        // Panel for the date label and copy date button.
         JPanel datePanel = new JPanel();
         datePanel.add(selectedDateLabel);
         datePanel.add(copyDateButton);
 
-        // Weekday selector panel with radio buttons and Back/Forward buttons.
+        // Weekday selector panel.
         JPanel weekdayPanel = new JPanel(new FlowLayout());
         mondayButton = new JRadioButton("Monday");
         tuesdayButton = new JRadioButton("Tuesday");
@@ -132,7 +133,7 @@ public class UserInterface extends JFrame {
         // Initialize UI selection and synchronize with App.LATEST_DATE.
         updateDateLabelAndWeekdaySelection();
 
-        // Bottom panel combining weekday selector and date panel.
+        // Bottom panel: combine weekday selectors and date display.
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.add(weekdayPanel);
@@ -144,16 +145,11 @@ public class UserInterface extends JFrame {
         add(actionButtonPanel, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Action for Pick Date button.
+        // Action listeners.
         pickDateButton.addActionListener(e -> pickDate());
-
-        // Action for Daily Latest button.
         dailyLatestButton.addActionListener(e -> processDailyLatest());
-
-        // Action for Five Minute Latest button.
         fiveMinuteLatestButton.addActionListener(e -> processFiveMinuteLatest());
-
-        // Action for Yesterday button using today's date as reference.
+        oneMinuteLatestButton.addActionListener(e -> processOneMinuteLatest());
         yesterdayButton.addActionListener(e -> {
             LocalDate today = LocalDate.now();
             DayOfWeek todayDow = today.getDayOfWeek();
@@ -169,14 +165,14 @@ public class UserInterface extends JFrame {
             updateDateLabelAndWeekdaySelection();
         });
 
-        // Radio button actions update the picked date relative to today's baseline.
+        // Weekday radio button actions.
         mondayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.MONDAY));
         tuesdayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.TUESDAY));
         wednesdayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.WEDNESDAY));
         thursdayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.THURSDAY));
         fridayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.FRIDAY));
 
-        // Back and Forward buttons adjust the picked date by one week.
+        // Back/Forward actions.
         backButton.addActionListener(e -> {
             pickedDate = pickedDate.minusWeeks(1);
             updateDateLabelAndWeekdaySelection();
@@ -187,7 +183,7 @@ public class UserInterface extends JFrame {
         });
     }
 
-    // Helper method to get the selected currency from radio buttons.
+    // Helper method to obtain the selected currency from radio buttons.
     private String getSelectedCurrency() {
         for (JRadioButton rb : currencyRadioButtons) {
             if (rb.isSelected()) {
@@ -198,7 +194,7 @@ public class UserInterface extends JFrame {
     }
 
     // Updates the picked date when a weekday radio button is selected.
-    // The computation is done relative to today's baseline.
+    // Computation is done relative to today's baseline.
     private void updatePickedDateForDay(DayOfWeek day) {
         LocalDate baseline = getBaseline();
         if (baseline.getDayOfWeek().getValue() <= day.getValue()) {
@@ -209,7 +205,7 @@ public class UserInterface extends JFrame {
         updateDateLabelAndWeekdaySelection();
     }
 
-    // Helper method: returns a baseline date based on today.
+    // Returns a baseline date based on today.
     // If today is Saturday or Sunday, returns the previous Friday; otherwise, returns today.
     private LocalDate getBaseline() {
         LocalDate today = LocalDate.now();
@@ -221,7 +217,7 @@ public class UserInterface extends JFrame {
         }
     }
 
-    // Opens a dialog with a JCalendar for the user to pick a date.
+    // Opens a JCalendar dialog for the user to pick a date.
     private void pickDate() {
         JDialog dialog = new JDialog(this, "Select Date", true);
         dialog.setSize(300, 300);
@@ -259,7 +255,6 @@ public class UserInterface extends JFrame {
     private void updateDateLabelAndWeekdaySelection() {
         adjustPickedDateIfWeekend();
         selectedDateLabel.setText("Selected Date: " + formatDate(pickedDate));
-        // Synchronize the static App.LATEST_DATE with the UI-picked date.
         App.LATEST_DATE = pickedDate;
         DayOfWeek dow = pickedDate.getDayOfWeek();
         switch (dow) {
@@ -283,12 +278,13 @@ public class UserInterface extends JFrame {
         }
     }
 
+    // Formats a LocalDate as "MM-dd-yyyy EEEE".
     private String formatDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy EEEE");
         return formatter.format(date);
     }
 
-    // Processes the Daily Latest screenshot using the picked date (synchronized with App.LATEST_DATE) and selected currency.
+    // Processes the Daily Latest screenshot using the picked date and selected currency.
     private void processDailyLatest() {
         App.forexChartType = ForexChartType.DAILY_LATEST;
         String selectedCurrency = getSelectedCurrency();
@@ -304,6 +300,14 @@ public class UserInterface extends JFrame {
         ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH, App.TARGET_DIRECTORY_PATH, selectedCurrency);
     }
 
+    // Processes the One Minute Latest screenshot (M1) using the selected currency.
+    private void processOneMinuteLatest() {
+        App.forexChartType = ForexChartType.ONE_MIN_LATEST;
+        String selectedCurrency = getSelectedCurrency();
+        ScreenshotService.takeScreenshot(App.SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
+        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH, App.TARGET_DIRECTORY_PATH, selectedCurrency);
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             UserInterface ui = new UserInterface();
@@ -312,7 +316,8 @@ public class UserInterface extends JFrame {
             GraphicsDevice[] screens = ge.getScreenDevices();
             GraphicsDevice leftMost = screens[0];
             for (GraphicsDevice screen : screens) {
-                if (screen.getDefaultConfiguration().getBounds().x < leftMost.getDefaultConfiguration().getBounds().x) {
+                if (screen.getDefaultConfiguration().getBounds().x <
+                        leftMost.getDefaultConfiguration().getBounds().x) {
                     leftMost = screen;
                 }
             }
