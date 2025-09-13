@@ -38,7 +38,7 @@ public class App {
     public static ForexChartType forexChartType = ForexChartType.FIVE_MIN_LATEST;
 
 //    "NASUSD" "OIL" "U30USD", "SPXUSD", , "GOLD" "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"
-    public static final String FOREX_CURRENCY_CODE = "GOLD";
+    public static String FOREX_CURRENCY_CODE = "GOLD";
 
     // Commented out most of the time and it should be used when you only want to process single Currency Code
 //    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(List.of("U30USD"));
@@ -61,7 +61,8 @@ public class App {
         if (forexChartType == ForexChartType.DAILY_LATEST ||
                 forexChartType == ForexChartType.DAILY_5 ||
                 forexChartType == ForexChartType.HOURLY_23_LATEST ||
-                forexChartType == ForexChartType.FIVE_MIN_LATEST) {
+                forexChartType == ForexChartType.FIVE_MIN_LATEST ||
+        forexChartType == ForexChartType.FIFTEEN_MIN_LATEST) {
             System.out.println("Hit F5 key to process the screenshot for the currency: " + FOREX_CURRENCY_CODE + " and date: " + ImageDrawingService.DEFAULT_FORMATTER.format(LATEST_DATE) + " " + LATEST_DATE.getDayOfWeek());
             while (!IS_TRIGGER_KEY_PRESSED) {
                 try {

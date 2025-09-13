@@ -27,7 +27,7 @@ public class ScreenshotService {
     private static final int CAPTURE_X = 0; // x-coordinate of the top-left corner of the capture region
     private static final int CAPTURE_Y = 45; // y-coordinate of the top-left corner of the capture region
     private static final int CAPTURE_WIDTH = 1920; // Width of the capture region
-    private static final int CAPTURE_HEIGHT = 972; // Height of the capture region
+    private static final int CAPTURE_HEIGHT = 1026; // Height of the capture region
 
     public static final String SCREENSHOT_FILE_NAME = "window_capture.png";
     public static LocalDateTime CURRENT_LOCAL_DATE_TIME;
@@ -130,6 +130,8 @@ public class ScreenshotService {
             ImageDrawingService.drawFiveMinuteWholeDayInfo(imageFile, targetDirectoryPath, currencyCode);
         } else if (forexChartType == ForexChartType.ONE_MIN_LATEST) {  // New branch for one-minute latest
             ImageDrawingService.drawOneMinuteLatestInfo(imageFile, targetDirectoryPath, currencyCode);
+        } else if (forexChartType == ForexChartType.FIFTEEN_MIN_LATEST) {  // New branch for one-minute latest
+            ImageDrawingService.drawFifteenMinuteLatestInfo(imageFile, targetDirectoryPath, currencyCode);
         }
         DateFileService.determineAndWriteNextDate(forexChartType);
     }
@@ -328,6 +330,7 @@ public class ScreenshotService {
         File directory = new File(directoryPath);
 
         if (!directory.exists()) {
+            System.out.println("Please create: " + directoryPath);
             throw new RuntimeException("Directory does not exist: " + directoryPath);
         }
 

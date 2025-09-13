@@ -4,12 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Clipboard;
+import java.text.DateFormatSymbols;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
+
 import org.example.enums.ForexChartType;
 import org.example.service.ScreenshotService;
 import com.toedter.calendar.JCalendar;
@@ -20,14 +22,21 @@ public class UserInterface extends JFrame {
     private LocalDate pickedDate = App.LATEST_DATE;
     private final JLabel selectedDateLabel;
 
+    // ────────────────────────────────────────────────
+    // NEW: combos for Month / Day / Year
+    // ────────────────────────────────────────────────
+    private final JComboBox<String> monthCombo;
+    private final JComboBox<Integer> dayCombo;
+    private final JComboBox<Integer> yearCombo;
+
     // Currency list items.
     private static final String[] CURRENCY_CODES = {
-            "NASUSD", "OIL", "U30USD", "SPXUSD", "GOLD", "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"
+            "NASUSD", "OIL", "U30USD", "SPXUSD", "GOLD",
+            "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"
     };
 
-    // Currency radio buttons and group.
     private final JRadioButton[] currencyRadioButtons;
-    private final ButtonGroup currencyButtonGroup;
+    private final ButtonGroup   currencyButtonGroup;
 
     private final JRadioButton mondayButton;
     private final JRadioButton tuesdayButton;
@@ -38,79 +47,139 @@ public class UserInterface extends JFrame {
     public UserInterface() {
         setTitle("Forex Screenshot UI");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 350);
+        setSize(600, 400);
 
-        // Currency selection panel using radio buttons.
-        JPanel currencyPanel = new JPanel();
-        JLabel currencyLabel = new JLabel("Select Currency: ");
+        /*──────────────────────────────
+         * Currency selection panel
+         *──────────────────────────────*/
+        JPanel currencyPanel  = new JPanel();
+        JLabel currencyLabel  = new JLabel("Select Currency: ");
         currencyPanel.add(currencyLabel);
 
-        currencyRadioButtons = new JRadioButton[CURRENCY_CODES.length];
-        currencyButtonGroup = new ButtonGroup();
-        JPanel currencyRadioPanel = new JPanel(new GridLayout(0, 3)); // 3-column layout
+        currencyRadioButtons  = new JRadioButton[CURRENCY_CODES.length];
+        currencyButtonGroup   = new ButtonGroup();
+        JPanel currencyRadioPanel = new JPanel(new GridLayout(0, 3));
+
         for (int i = 0; i < CURRENCY_CODES.length; i++) {
             String code = CURRENCY_CODES[i];
             JRadioButton rb = new JRadioButton(code);
             currencyRadioButtons[i] = rb;
             currencyButtonGroup.add(rb);
             currencyRadioPanel.add(rb);
-            // Preselect default currency ("GOLD")
             if (code.equals(App.FOREX_CURRENCY_CODE)) {
                 rb.setSelected(true);
             }
         }
         currencyPanel.add(currencyRadioPanel);
 
-        // Copy Currency button.
         JButton copyCurrencyButton = new JButton("Copy Currency");
         copyCurrencyButton.addActionListener(e -> {
             String selectedCurrency = getSelectedCurrency();
             if (selectedCurrency != null) {
-                StringSelection selection = new StringSelection(selectedCurrency);
-                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(selection, null);
+                Toolkit.getDefaultToolkit()
+                        .getSystemClipboard()
+                        .setContents(new StringSelection(selectedCurrency), null);
             }
         });
         currencyPanel.add(copyCurrencyButton);
 
-        // Create buttons for processing screenshots.
-        JButton dailyLatestButton = new JButton("Daily Latest");
-        JButton fiveMinuteLatestButton = new JButton("Five Minute Latest");
-        JButton oneMinuteLatestButton = new JButton("One Minute Latest");
-        JButton pickDateButton = new JButton("Pick Date");
-        JButton yesterdayButton = new JButton("Yesterday");
+        /*──────────────────────────────
+         * Screenshot / date action buttons
+         *──────────────────────────────*/
+        JButton dailyLatestButton        = new JButton("Daily Latest");
+        JButton fiveMinuteLatestButton   = new JButton("Five Minute Latest");
+        JButton fifteenMinuteLatestButton= new JButton("Fifteen Minute Latest");
+        JButton oneMinuteLatestButton    = new JButton("One Minute Latest");
+        JButton pickDateButton           = new JButton("Pick Date");
+        JButton yesterdayButton          = new JButton("Yesterday");
+        JButton oneDayForwardButton      = new JButton("One Day Forward");
+        JButton goBackOneDayButton       = new JButton("Go Back One Day");
 
         JPanel actionButtonPanel = new JPanel();
         actionButtonPanel.add(dailyLatestButton);
         actionButtonPanel.add(fiveMinuteLatestButton);
-        actionButtonPanel.add(oneMinuteLatestButton); // New button for M1
+        actionButtonPanel.add(fifteenMinuteLatestButton);
+        actionButtonPanel.add(oneMinuteLatestButton);
         actionButtonPanel.add(pickDateButton);
         actionButtonPanel.add(yesterdayButton);
+        actionButtonPanel.add(oneDayForwardButton);
+        actionButtonPanel.add(goBackOneDayButton);
 
-        // Label to display the selected date.
+        /*──────────────────────────────
+         * Selected‑date label + copy
+         *──────────────────────────────*/
         selectedDateLabel = new JLabel("Selected Date: " + formatDate(pickedDate));
 
-        // Copy Date button.
         JButton copyDateButton = new JButton("Copy Date");
         copyDateButton.addActionListener(e -> {
             String dateText = selectedDateLabel.getText().replace("Selected Date: ", "");
-            StringSelection selection = new StringSelection(dateText);
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            clipboard.setContents(selection, null);
+            Toolkit.getDefaultToolkit()
+                    .getSystemClipboard()
+                    .setContents(new StringSelection(dateText), null);
         });
 
-        // Panel for the date label and copy date button.
         JPanel datePanel = new JPanel();
         datePanel.add(selectedDateLabel);
         datePanel.add(copyDateButton);
 
-        // Weekday selector panel.
+        /*──────────────────────────────
+         * NEW: Month / Day / Year combos
+         *──────────────────────────────*/
+        JPanel mdYPanel = new JPanel(new FlowLayout());
+
+        String[] months = new DateFormatSymbols().getMonths();
+        monthCombo = new JComboBox<>();
+        for (int m = 0; m < 12; m++) {
+            monthCombo.addItem("(" + (m + 1) + ") " + months[m]);
+        }
+
+
+        dayCombo = new JComboBox<>();
+        for (int d = 1; d <= 31; d++) dayCombo.addItem(d);
+
+        yearCombo = new JComboBox<>();
+        int thisYear = LocalDate.now().getYear();
+        for (int y = thisYear - 10; y <= thisYear + 10; y++) yearCombo.addItem(y);
+
+        // initialise combos with the current pickedDate
+        monthCombo.setSelectedIndex(pickedDate.getMonthValue() - 1);
+        dayCombo.setSelectedItem(pickedDate.getDayOfMonth());
+        yearCombo.setSelectedItem(pickedDate.getYear());
+
+        JButton selectDateButton = new JButton("Select");
+        selectDateButton.addActionListener(e -> {
+            int year  = (Integer) yearCombo.getSelectedItem();
+            int month = monthCombo.getSelectedIndex() + 1;
+            int day   = (Integer) dayCombo.getSelectedItem();
+
+            // Guard against invalid (e.g., 31 Feb) – fallback to last valid day
+            try {
+                pickedDate = LocalDate.of(year, month, day);
+            } catch (Exception ex) {
+                pickedDate = LocalDate.of(year, month, 1).with(TemporalAdjusters.lastDayOfMonth());
+            }
+
+            adjustPickedDateIfWeekend();
+            updateDateLabelAndWeekdaySelection();
+        });
+
+        mdYPanel.add(new JLabel("Month:"));
+        mdYPanel.add(monthCombo);
+        mdYPanel.add(new JLabel("Day:"));
+        mdYPanel.add(dayCombo);
+        mdYPanel.add(new JLabel("Year:"));
+        mdYPanel.add(yearCombo);
+        mdYPanel.add(selectDateButton);
+
+        /*──────────────────────────────
+         * Weekday selector
+         *──────────────────────────────*/
         JPanel weekdayPanel = new JPanel(new FlowLayout());
-        mondayButton = new JRadioButton("Monday");
-        tuesdayButton = new JRadioButton("Tuesday");
+        mondayButton    = new JRadioButton("Monday");
+        tuesdayButton   = new JRadioButton("Tuesday");
         wednesdayButton = new JRadioButton("Wednesday");
-        thursdayButton = new JRadioButton("Thursday");
-        fridayButton = new JRadioButton("Friday");
+        thursdayButton  = new JRadioButton("Thursday");
+        fridayButton    = new JRadioButton("Friday");
 
         ButtonGroup weekdayButtonGroup = new ButtonGroup();
         weekdayButtonGroup.add(mondayButton);
@@ -119,105 +188,111 @@ public class UserInterface extends JFrame {
         weekdayButtonGroup.add(thursdayButton);
         weekdayButtonGroup.add(fridayButton);
 
+        JButton backButton    = new JButton("Back");
+        JButton forwardButton = new JButton("Forward");
+
         weekdayPanel.add(mondayButton);
         weekdayPanel.add(tuesdayButton);
         weekdayPanel.add(wednesdayButton);
         weekdayPanel.add(thursdayButton);
         weekdayPanel.add(fridayButton);
-
-        JButton backButton = new JButton("Back");
-        JButton forwardButton = new JButton("Forward");
         weekdayPanel.add(backButton);
         weekdayPanel.add(forwardButton);
 
-        // Initialize UI selection and synchronize with App.LATEST_DATE.
-        updateDateLabelAndWeekdaySelection();
-
-        // Bottom panel: combine weekday selectors and date display.
+        /*──────────────────────────────
+         * Bottom layout
+         *──────────────────────────────*/
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
         bottomPanel.add(weekdayPanel);
+        bottomPanel.add(mdYPanel);      // ← NEW combos live here
         bottomPanel.add(datePanel);
 
-        // Set main layout.
+        /*──────────────────────────────
+         * Frame layout
+         *──────────────────────────────*/
         setLayout(new BorderLayout());
-        add(currencyPanel, BorderLayout.NORTH);
-        add(actionButtonPanel, BorderLayout.CENTER);
-        add(bottomPanel, BorderLayout.SOUTH);
+        add(currencyPanel,    BorderLayout.NORTH);
+        add(actionButtonPanel,BorderLayout.CENTER);
+        add(bottomPanel,      BorderLayout.SOUTH);
 
-        // Action listeners.
+        /*──────────────────────────────
+         * Button actions
+         *──────────────────────────────*/
         pickDateButton.addActionListener(e -> pickDate());
         dailyLatestButton.addActionListener(e -> processDailyLatest());
         fiveMinuteLatestButton.addActionListener(e -> processFiveMinuteLatest());
+        fifteenMinuteLatestButton.addActionListener(e -> processFifteenMinuteLatest());
         oneMinuteLatestButton.addActionListener(e -> processOneMinuteLatest());
+
         yesterdayButton.addActionListener(e -> {
             LocalDate today = LocalDate.now();
-            DayOfWeek todayDow = today.getDayOfWeek();
-            if (todayDow == DayOfWeek.MONDAY) {
-                pickedDate = today.minusDays(3);
-            } else if (todayDow == DayOfWeek.SATURDAY) {
-                pickedDate = today.minusDays(1);
-            } else if (todayDow == DayOfWeek.SUNDAY) {
-                pickedDate = today.minusDays(2);
-            } else {
-                pickedDate = today.minusDays(1);
+            switch (today.getDayOfWeek()) {
+                case MONDAY  -> pickedDate = today.minusDays(3);
+                case SATURDAY-> pickedDate = today.minusDays(1);
+                case SUNDAY  -> pickedDate = today.minusDays(2);
+                default      -> pickedDate = today.minusDays(1);
             }
             updateDateLabelAndWeekdaySelection();
         });
 
-        // Weekday radio button actions.
+        oneDayForwardButton.addActionListener(e -> {
+            pickedDate = (pickedDate.getDayOfWeek() == DayOfWeek.FRIDAY)
+                    ? pickedDate.plusDays(3)
+                    : pickedDate.plusDays(1);
+            updateDateLabelAndWeekdaySelection();
+            Toolkit.getDefaultToolkit().getSystemClipboard()
+                    .setContents(new StringSelection(formatDate(pickedDate)), null);
+        });
+
+        goBackOneDayButton.addActionListener(e -> {
+            pickedDate = (pickedDate.getDayOfWeek() == DayOfWeek.MONDAY)
+                    ? pickedDate.minusDays(3)
+                    : pickedDate.minusDays(1);
+            updateDateLabelAndWeekdaySelection();
+            Toolkit.getDefaultToolkit().getSystemClipboard()
+                    .setContents(new StringSelection(formatDate(pickedDate)), null);
+        });
+
         mondayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.MONDAY));
         tuesdayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.TUESDAY));
         wednesdayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.WEDNESDAY));
         thursdayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.THURSDAY));
         fridayButton.addActionListener(e -> updatePickedDateForDay(DayOfWeek.FRIDAY));
 
-        // Back/Forward actions.
-        backButton.addActionListener(e -> {
-            pickedDate = pickedDate.minusWeeks(1);
-            updateDateLabelAndWeekdaySelection();
-        });
-        forwardButton.addActionListener(e -> {
-            pickedDate = pickedDate.plusWeeks(1);
-            updateDateLabelAndWeekdaySelection();
-        });
-    }
+        backButton.addActionListener   (e -> { pickedDate = pickedDate.minusWeeks(1); updateDateLabelAndWeekdaySelection(); });
+        forwardButton.addActionListener(e -> { pickedDate = pickedDate.plusWeeks(1);  updateDateLabelAndWeekdaySelection(); });
 
-    // Helper method to obtain the selected currency from radio buttons.
-    private String getSelectedCurrency() {
-        for (JRadioButton rb : currencyRadioButtons) {
-            if (rb.isSelected()) {
-                return rb.getText();
-            }
-        }
-        return null;
-    }
-
-    // Updates the picked date when a weekday radio button is selected.
-    // Computation is done relative to today's baseline.
-    private void updatePickedDateForDay(DayOfWeek day) {
-        LocalDate baseline = getBaseline();
-        if (baseline.getDayOfWeek().getValue() <= day.getValue()) {
-            pickedDate = baseline.with(TemporalAdjusters.nextOrSame(day));
-        } else {
-            pickedDate = baseline.with(TemporalAdjusters.previous(day));
-        }
+        /*──────────────────────────────
+         * Initial sync
+         *──────────────────────────────*/
         updateDateLabelAndWeekdaySelection();
     }
 
-    // Returns a baseline date based on today.
-    // If today is Saturday or Sunday, returns the previous Friday; otherwise, returns today.
-    private LocalDate getBaseline() {
-        LocalDate today = LocalDate.now();
-        DayOfWeek dow = today.getDayOfWeek();
-        if (dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY) {
-            return today.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
-        } else {
-            return today;
-        }
+    /*──────────────────────────────
+     * Helper methods
+     *──────────────────────────────*/
+    private String getSelectedCurrency() {
+        for (JRadioButton rb : currencyRadioButtons) if (rb.isSelected()) return rb.getText();
+        return null;
     }
 
-    // Opens a JCalendar dialog for the user to pick a date.
+    private void updatePickedDateForDay(DayOfWeek day) {
+        LocalDate baseline = getBaseline();
+        pickedDate = (baseline.getDayOfWeek().getValue() <= day.getValue())
+                ? baseline.with(TemporalAdjusters.nextOrSame(day))
+                : baseline.with(TemporalAdjusters.previous(day));
+        updateDateLabelAndWeekdaySelection();
+    }
+
+    private LocalDate getBaseline() {
+        LocalDate today = LocalDate.now();
+        return switch (today.getDayOfWeek()) {
+            case SATURDAY, SUNDAY -> today.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
+            default               -> today;
+        };
+    }
+
     private void pickDate() {
         JDialog dialog = new JDialog(this, "Select Date", true);
         dialog.setSize(300, 300);
@@ -227,12 +302,10 @@ public class UserInterface extends JFrame {
         JCalendar calendar = new JCalendar();
         dialog.add(calendar, BorderLayout.CENTER);
 
-        JPanel panel = new JPanel();
         JButton okButton = new JButton("OK");
-        panel.add(okButton);
-        dialog.add(panel, BorderLayout.SOUTH);
-
         okButton.addActionListener(e -> dialog.dispose());
+        dialog.add(okButton, BorderLayout.SOUTH);
+
         dialog.setVisible(true);
 
         Date selectedUtilDate = calendar.getDate();
@@ -241,77 +314,67 @@ public class UserInterface extends JFrame {
         updateDateLabelAndWeekdaySelection();
     }
 
-    // Adjusts pickedDate if it falls on a weekend.
     private void adjustPickedDateIfWeekend() {
-        DayOfWeek dow = pickedDate.getDayOfWeek();
-        if (dow == DayOfWeek.SATURDAY) {
-            pickedDate = pickedDate.minusDays(1); // Set to Friday.
-        } else if (dow == DayOfWeek.SUNDAY) {
-            pickedDate = pickedDate.plusDays(1); // Set to Monday.
-        }
+        pickedDate = switch (pickedDate.getDayOfWeek()) {
+            case SATURDAY -> pickedDate.minusDays(1);
+            case SUNDAY   -> pickedDate.plusDays(1);
+            default       -> pickedDate;
+        };
     }
 
-    // Updates the date label, radio button selection, and synchronizes App.LATEST_DATE.
     private void updateDateLabelAndWeekdaySelection() {
         adjustPickedDateIfWeekend();
         selectedDateLabel.setText("Selected Date: " + formatDate(pickedDate));
         App.LATEST_DATE = pickedDate;
-        DayOfWeek dow = pickedDate.getDayOfWeek();
-        switch (dow) {
-            case MONDAY:
-                mondayButton.setSelected(true);
-                break;
-            case TUESDAY:
-                tuesdayButton.setSelected(true);
-                break;
-            case WEDNESDAY:
-                wednesdayButton.setSelected(true);
-                break;
-            case THURSDAY:
-                thursdayButton.setSelected(true);
-                break;
-            case FRIDAY:
-                fridayButton.setSelected(true);
-                break;
-            default:
-                break;
-        }
+
+        monthCombo.setSelectedIndex(pickedDate.getMonthValue() - 1);
+        dayCombo.setSelectedItem(pickedDate.getDayOfMonth());
+        yearCombo.setSelectedItem(pickedDate.getYear());
+
+        mondayButton.setSelected(pickedDate.getDayOfWeek() == DayOfWeek.MONDAY);
+        tuesdayButton.setSelected(pickedDate.getDayOfWeek() == DayOfWeek.TUESDAY);
+        wednesdayButton.setSelected(pickedDate.getDayOfWeek() == DayOfWeek.WEDNESDAY);
+        thursdayButton.setSelected(pickedDate.getDayOfWeek() == DayOfWeek.THURSDAY);
+        fridayButton.setSelected(pickedDate.getDayOfWeek() == DayOfWeek.FRIDAY);
     }
 
-    // Formats a LocalDate as "MM-dd-yyyy EEEE".
     private String formatDate(LocalDate date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy EEEE");
-        return formatter.format(date);
+        return DateTimeFormatter.ofPattern("MM-dd-yyyy EEEE").format(date);
     }
 
-    // Processes the Daily Latest screenshot using the picked date and selected currency.
     private void processDailyLatest() {
         App.forexChartType = ForexChartType.DAILY_LATEST;
-        String selectedCurrency = getSelectedCurrency();
         ScreenshotService.takeScreenshot(App.SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
-        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH, App.TARGET_DIRECTORY_PATH, selectedCurrency);
+        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH,
+                App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
     }
 
-    // Processes the Five Minute Latest screenshot using the selected currency.
     private void processFiveMinuteLatest() {
         App.forexChartType = ForexChartType.FIVE_MIN_LATEST;
-        String selectedCurrency = getSelectedCurrency();
         ScreenshotService.takeScreenshot(App.SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
-        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH, App.TARGET_DIRECTORY_PATH, selectedCurrency);
+        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH,
+                App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
     }
 
-    // Processes the One Minute Latest screenshot (M1) using the selected currency.
     private void processOneMinuteLatest() {
         App.forexChartType = ForexChartType.ONE_MIN_LATEST;
-        String selectedCurrency = getSelectedCurrency();
         ScreenshotService.takeScreenshot(App.SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
-        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH, App.TARGET_DIRECTORY_PATH, selectedCurrency);
+        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH,
+                App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
+    }
+
+    private void processFifteenMinuteLatest() {
+        App.forexChartType = ForexChartType.FIFTEEN_MIN_LATEST;
+        ScreenshotService.takeScreenshot(App.SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
+        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH,
+                App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+//          TelegramBotListener.start();
             UserInterface ui = new UserInterface();
-            // Determine the leftmost monitor.
+
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             GraphicsDevice[] screens = ge.getScreenDevices();
             GraphicsDevice leftMost = screens[0];
@@ -321,9 +384,8 @@ public class UserInterface extends JFrame {
                     leftMost = screen;
                 }
             }
-            // Get the leftmost monitor's bounds.
             Rectangle bounds = leftMost.getDefaultConfiguration().getBounds();
-            int x = bounds.x + (bounds.width - ui.getWidth()) / 2;
+            int x = bounds.x + (bounds.width  - ui.getWidth())  / 2;
             int y = bounds.y + (bounds.height - ui.getHeight()) / 2;
             ui.setLocation(x, y);
             ui.setVisible(true);

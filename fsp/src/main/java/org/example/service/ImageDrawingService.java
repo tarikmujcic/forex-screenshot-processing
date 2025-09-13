@@ -9,6 +9,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -457,11 +459,67 @@ public class ImageDrawingService {
             File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
                     "-" + dayOfWeek +
                     "-M5-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
+
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
             openImageInDefaultViewer(rootOutputFile);
 
-//            sourceImageFile.delete();
+            image.flush();
+            System.gc();
+        } catch (IOException e) {
+            System.out.println("Error processing image: " + sourceImageFile.getName());
+        }
+    }
+
+    public static void drawFifteenMinuteLatestInfo(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
+        try {
+            targetDirectoryPath = targetDirectoryPath + "\\" + currencyCode + "\\" + DEFAULT_FORMATTER.format(App.LATEST_DATE);
+//            BufferedImage image = ImageIO.read(sourceImageFile);
+            BufferedImage image;
+            try (FileInputStream fis = new FileInputStream(sourceImageFile)) {
+                image = ImageIO.read(fis);
+            }
+            // Create a graphics object to draw on the image
+            Graphics2D g2d = image.createGraphics();
+
+            // Define font and color for drawing days of the week
+            g2d.setFont(DEFAULT_FONT_BIG);
+            g2d.setColor(Color.BLACK);
+
+            int imageWidth = image.getWidth();
+            int imageHeight = image.getHeight();
+            int x = imageWidth / 6 * 5;
+            int y = imageHeight / 9 * 8;
+
+            LocalDate currentDate = App.LATEST_DATE;
+            String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
+            String date = currentDate.format(DEFAULT_FORMATTER);
+
+            g2d.drawString(dayOfWeek, x, y);
+            g2d.drawString(date, x, y + 35);
+
+            g2d.drawString(currencyCode + " - M15", 50, 80);
+
+            g2d.dispose();
+
+            File outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                    "-" + dayOfWeek +
+                    "-M15" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + ".png");
+
+            if (!outputFile.exists()) {
+                outputFile.mkdirs(); // Creates the directory and any necessary parent directories
+            }
+            ImageIO.write(image, "png", outputFile);
+
+            // write to root for easier access - as requested
+            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                    "-" + dayOfWeek +
+                    "-M5-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
+
+            ImageIO.write(image, "png", rootOutputFile);
+            ImageToClipboardService.copyImageToClipboard(rootOutputFile);
+            openImageInDefaultViewer(rootOutputFile);
+
             image.flush();
             System.gc();
         } catch (IOException e) {
