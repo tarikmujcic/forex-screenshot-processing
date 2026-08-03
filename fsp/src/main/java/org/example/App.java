@@ -35,10 +35,10 @@ public class App {
     public static boolean IS_FULLY_AUTOMATED = false;
     public static boolean IS_TRIGGER_KEY_PRESSED = false;
 
-    public static ForexChartType forexChartType = ForexChartType.FIVE_MIN_LATEST;
+    public static ForexChartType forexChartType = ForexChartType.HOURLY_1;
 
 //    "NASUSD" "OIL" "U30USD", "SPXUSD", , "GOLD" "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"
-    public static String FOREX_CURRENCY_CODE = "GOLD";
+    public static String FOREX_CURRENCY_CODE = "USDCAD";
 
     // Commented out most of the time and it should be used when you only want to process single Currency Code
 //    public static final List<String> FOREX_CURRENCY_CODE_LIST = new ArrayList<>(List.of("U30USD"));
@@ -49,13 +49,16 @@ public class App {
      * It takes today's date by default, but you can change it with e.g LocalDate.now().plusDays(1) or .minusDays(1)
      */
 //    public static LocalDate LATEST_DATE = LocalDate.now().minusDays(4);
-    public static LocalDate LATEST_DATE = LocalDate.parse("2025-03-18");
+    public static LocalDate LATEST_DATE = LocalDate.parse("2025-12-11");
     public static void main(String[] args) throws InterruptedException {
         ScreenshotService.createFolderInPath(TARGET_DIRECTORY_PATH, "Debug");
         KeyListenerService.initializeGlobalKeyListener();
 //        InstanceCounterService.initializeInstanceCounters();
 //        Thread.sleep(5000); // Wait for 5s at the start
-        START_DATE = DateFileService.getDateFromFile();
+        if(LATEST_DATE != null) {
+//            START_DATE = DateFileService.getDateFromFile();
+            START_DATE = LATEST_DATE;
+        }
 
         // Handle special case of ForexChartType.DAILY_LATEST
         if (forexChartType == ForexChartType.DAILY_LATEST ||
@@ -83,7 +86,8 @@ public class App {
         }
         while (START_DATE.isBefore(TODAY)) {
             if (!IS_FULLY_AUTOMATED) {
-                LocalDate dateFromFile = DateFileService.getDateFromFile();
+//                LocalDate dateFromFile = DateFileService.getDateFromFile(); // Original
+                LocalDate dateFromFile = App.LATEST_DATE; // Original
                 System.out.println("Hit F5 key to process the screenshot for the currency: " + FOREX_CURRENCY_CODE + " and date from file: "
                         + ImageDrawingService.DEFAULT_FORMATTER.format(dateFromFile) + " " + dateFromFile.getDayOfWeek());
                 while (!IS_TRIGGER_KEY_PRESSED) {
@@ -100,7 +104,8 @@ public class App {
                 ScreenshotService.processScreenshot(forexChartType, SOURCE_DIRECTORY_PATH, TARGET_DIRECTORY_PATH, FOREX_CURRENCY_CODE);
                 IS_TRIGGER_KEY_PRESSED = false;
 
-                int numberOfPresses = forexChartType == ForexChartType.HOURLY_23 ? DateFileService.getForexHoursForDate(START_DATE.plusDays(1)) : 1;
+//                int numberOfPresses = forexChartType == ForexChartType.HOURLY_23 ? DateFileService.getForexHoursForDate(START_DATE.plusDays(1)) : 1; // Original
+                int numberOfPresses = forexChartType == ForexChartType.HOURLY_23 ? 23 : 1; // Original
                 while (!FocusedAppCheckerService.isTraderAppFocused()) {
                     Thread.sleep(500);
                 }

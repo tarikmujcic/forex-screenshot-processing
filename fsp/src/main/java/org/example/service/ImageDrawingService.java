@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
+import java.util.Random;
 
 public class ImageDrawingService {
 
@@ -177,7 +178,8 @@ public class ImageDrawingService {
      */
     public static void drawDailyInfo(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
         try {
-            App.START_DATE = DateFileService.getDateFromFile();
+//            App.START_DATE = DateFileService.getDateFromFile(); // Original
+            App.START_DATE = App.LATEST_DATE;
             BufferedImage image = ImageIO.read(sourceImageFile);
             // Create a graphics object to draw on the image
             Graphics2D g2d = image.createGraphics();
@@ -190,7 +192,8 @@ public class ImageDrawingService {
             int imageHeight = image.getHeight();
             int x = imageWidth / 9 * 8;
             int y = imageHeight / 9 * 8;
-            LocalDate currentDate = DateFileService.getDateFromFile();
+//            LocalDate currentDate = DateFileService.getDateFromFile(); // Original
+            LocalDate currentDate = App.LATEST_DATE;
             assert currentDate != null;
             String dayOfWeek = currentDate.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
             String date = currentDate.format(DEFAULT_FORMATTER);
@@ -221,7 +224,8 @@ public class ImageDrawingService {
 
     public static void drawDailyInfo6(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
         try {
-            App.START_DATE = DateFileService.getDateFromFile();
+//            App.START_DATE = DateFileService.getDateFromFile(); // Original
+            App.START_DATE = App.LATEST_DATE;
             BufferedImage image = ImageIO.read(sourceImageFile);
             // Create a graphics object to draw on the image
             Graphics2D g2d = image.createGraphics();
@@ -234,7 +238,8 @@ public class ImageDrawingService {
             int imageHeight = image.getHeight();
             int x = imageWidth / 9 * 8;
             int y = imageHeight / 9 * 8;
-            LocalDate currentDate = DateFileService.getDateFromFile();
+            //            LocalDate currentDate = DateFileService.getDateFromFile(); // Original
+            LocalDate currentDate = App.LATEST_DATE;
             assert currentDate != null;
             String friday = "Friday";
             String thursday = "Thursday";
@@ -364,29 +369,32 @@ public class ImageDrawingService {
      * @param sourceImageFile Image source file that will be edited
      * @param targetDirectoryPath Path where the new file will be saved
      */
-    public static void drawWeeklyInfo(File sourceImageFile, String targetDirectoryPath) {
+    public static void drawWeeklyInfo(File sourceImageFile, String targetDirectoryPath, String currencyCode) {
         try {
             BufferedImage image = ImageIO.read(sourceImageFile);
             // Create a graphics object to draw on the image
             Graphics2D g2d = image.createGraphics();
 
             // Define font and color for drawing days of the week
-            g2d.setFont(DEFAULT_FONT);
+            g2d.setFont(DEFAULT_FONT_BIG);
             g2d.setColor(Color.BLACK);
 
             int imageWidth = image.getWidth();
             int imageHeight = image.getHeight();
-            int x = imageWidth / 9 * 8;
+            int x = imageWidth / 9 * 8 - 60;
             int y = imageHeight / 9 * 8;
-            LocalDate startDate = DateFileService.determineStartDate();
-            LocalDate currentDate = DateFileService.getDateFromFile();
+            LocalDate startDate = App.LATEST_DATE.minusDays(4);
+            //            LocalDate currentDate = DateFileService.getDateFromFile(); // Original
+            LocalDate currentDate = App.LATEST_DATE;
             assert currentDate != null;
             String startDateFormatted = startDate.format(DEFAULT_FORMATTER);
             String currentDateFormatted = currentDate.format(DEFAULT_FORMATTER);
 
+            g2d.drawString(currencyCode + " - Weekly", 50, 80);
+
             g2d.drawString(startDateFormatted, x, y);
-            g2d.drawString("to", x + 50, y + 25);
-            g2d.drawString(currentDateFormatted, x, y + 50);
+            g2d.drawString("to", x + 60, y + 35);
+            g2d.drawString(currentDateFormatted, x, y + 70);
 
             currentDate = currentDate.plusDays(1);
             while (currentDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
@@ -396,9 +404,14 @@ public class ImageDrawingService {
             }
 
             g2d.dispose();
-            int imageId = InstanceCounterService.getAndIncrementWEEKLY_INSTANCE_COUNT();
+            Random rand = new Random();
+            int imageId = rand.nextInt(10);
+            System.out.println("imageId: " + imageId);
             File outputFile = new File(targetDirectoryPath + File.separator + DateFileService.determineFileNameForWeekly(imageId, startDate, currentDate));
             ImageIO.write(image, "png", outputFile);
+            openImageInDefaultViewer(outputFile);
+            System.out.println(outputFile.getAbsolutePath());
+            System.out.println(sourceImageFile.getAbsolutePath());
             sourceImageFile.delete();
         } catch (IOException e) {
             System.out.println("Error processing image: " + sourceImageFile.getName());
@@ -441,14 +454,50 @@ public class ImageDrawingService {
 
             g2d.drawString(dayOfWeek, x, y);
             g2d.drawString(date, x, y + 35);
+            System.out.println("drawFiveMinuteLatestInfo");
+            System.out.println("App.forexChartType: " + App.forexChartType);
+            if(App.forexChartType == ForexChartType.FIVE_MIN_LATEST) {
+                g2d.drawString(currencyCode + " - M5", 50, 80);
+            }
+            else if (App.forexChartType == ForexChartType.HOURLY_1) {
+                g2d.drawString(currencyCode + " - H1", 50, 80);
+            }
 
-            g2d.drawString(currencyCode + " - M5", 50, 80);
+            else if (App.forexChartType == ForexChartType.FOUR_HOUR) {
+                g2d.drawString(currencyCode + " - H4", 50, 80);
+            }
 
             g2d.dispose();
-
-            File outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
-                    "-" + dayOfWeek +
-                    "-M5" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + ".png");
+            File outputFile = null;
+            File rootOutputFile = null;
+            if(App.forexChartType == ForexChartType.FIVE_MIN_LATEST) {
+                outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                        "-" + dayOfWeek +
+                        "-M5" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + ".png");
+                rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                        "-" + dayOfWeek +
+                        "-M5-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
+            }
+            else if (App.forexChartType == ForexChartType.HOURLY_1) {
+                System.out.println("In H1 fileName");
+                outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                        "-" + dayOfWeek +
+                        "-H1-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + ".png");
+                rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                        "-" + dayOfWeek +
+                        "-H1-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
+                System.out.println("outputFile.getName(): " + outputFile.getName());
+            }
+            else if (App.forexChartType == ForexChartType.FOUR_HOUR) {
+                System.out.println("In H1 fileName");
+                outputFile = new File(targetDirectoryPath + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                        "-" + dayOfWeek +
+                        "-H4-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) + ".png");
+                rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
+                        "-" + dayOfWeek +
+                        "-H4-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
+                System.out.println("outputFile.getName(): " + outputFile.getName());
+            }
 
             if (!outputFile.exists()) {
                 outputFile.mkdirs(); // Creates the directory and any necessary parent directories
@@ -456,10 +505,6 @@ public class ImageDrawingService {
             ImageIO.write(image, "png", outputFile);
 
             // write to root for easier access - as requested
-            File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
-                    "-" + dayOfWeek +
-                    "-M5-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
-
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);
             openImageInDefaultViewer(rootOutputFile);
@@ -514,7 +559,7 @@ public class ImageDrawingService {
             // write to root for easier access - as requested
             File rootOutputFile = new File(App.ROOT_DIRECTORY_PATH + File.separator + DEFAULT_FORMATTER.format(App.LATEST_DATE) +
                     "-" + dayOfWeek +
-                    "-M5-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
+                    "-M15-" + currencyCode + "-" + HOUR_MINUTE_FORMATTER.format(LocalDateTime.now()) +  ".png");
 
             ImageIO.write(image, "png", rootOutputFile);
             ImageToClipboardService.copyImageToClipboard(rootOutputFile);

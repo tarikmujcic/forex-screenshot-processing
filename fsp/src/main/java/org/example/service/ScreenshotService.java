@@ -107,16 +107,18 @@ public class ScreenshotService {
             processFiveMinImage(imageFile, targetDirectoryPath);
         }
         if (forexChartType == ForexChartType.HOURLY_1) {
-            processHourly1Image(imageFile, targetDirectoryPath);
+//            processHourly1Image(imageFile, targetDirectoryPath);
+            ImageDrawingService.drawFiveMinuteLatestInfo(imageFile, targetDirectoryPath, currencyCode);
         }
         if (forexChartType == ForexChartType.HOURLY_23) {
             ImageDrawingService.drawHourly23Info(imageFile, targetDirectoryPath, null);
         } else if (forexChartType == ForexChartType.FOUR_HOUR) {
-            processFourHourImage(imageFile, targetDirectoryPath);
+//            processFourHourImage(imageFile, targetDirectoryPath);
+            ImageDrawingService.drawFiveMinuteLatestInfo(imageFile, targetDirectoryPath, currencyCode);
         } else if (forexChartType == ForexChartType.DAILY) {
             ImageDrawingService.drawDailyInfo(imageFile, targetDirectoryPath, currencyCode);
         } else if (forexChartType == ForexChartType.WEEKLY) {
-            ImageDrawingService.drawWeeklyInfo(imageFile, targetDirectoryPath);
+            ImageDrawingService.drawWeeklyInfo(imageFile, targetDirectoryPath, currencyCode);
         } else if (forexChartType == ForexChartType.DAILY_LATEST) {
             ImageDrawingService.drawDailyLatestInfo(imageFile, targetDirectoryPath, currencyCode);
         } else if (forexChartType == ForexChartType.DAILY_5) {
@@ -133,15 +135,16 @@ public class ScreenshotService {
         } else if (forexChartType == ForexChartType.FIFTEEN_MIN_LATEST) {  // New branch for one-minute latest
             ImageDrawingService.drawFifteenMinuteLatestInfo(imageFile, targetDirectoryPath, currencyCode);
         }
-        DateFileService.determineAndWriteNextDate(forexChartType);
+//        DateFileService.determineAndWriteNextDate(forexChartType);
     }
 
 
 
     private static void processFiveMinImage(File imageFile, String targetDirectoryPath) {
+        System.out.println("IN processFiveMinImage");
         if (CURRENT_CANDLE == 1) {
-            CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(18, 0);
-
+//            CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(18, 0); // Original
+            CURRENT_LOCAL_DATE_TIME = LocalDate.now().atTime(17, 0);
             // handle file hierarchy
             int year = CURRENT_LOCAL_DATE_TIME.getYear();
             if (CURRENT_YEAR != year) {
@@ -159,7 +162,8 @@ public class ScreenshotService {
             if (dayType == ForexDayType.OFF_DAY) {
                 throw new RuntimeException("Unexpected day type. OFF_DAY should never be in the CURRENT_LOCAL_DATE_TIME");
             }
-            CURRENT_CANDLE_MAX = dayType == ForexDayType.GOOD_DAY ? 23 * 12 : DateFileService.getForexHoursForDate(CURRENT_LOCAL_DATE_TIME.toLocalDate()) * 12;
+//            CURRENT_CANDLE_MAX = dayType == ForexDayType.GOOD_DAY ? 23 * 12 : DateFileService.getForexHoursForDate(CURRENT_LOCAL_DATE_TIME.toLocalDate()) * 12; // Original
+            CURRENT_CANDLE_MAX = dayType == ForexDayType.GOOD_DAY ? 23 * 12 : null; // Original
 
             DEBUG_FOLDER_PATH = createFolderInPath(targetDirectoryPath, "Debug");
 
@@ -191,13 +195,15 @@ public class ScreenshotService {
 
     private static void processHourly1Image(File imageFile, String targetDirectoryPath) {
         if (CURRENT_CANDLE == 1) {
-            CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(18, 0);
+            //            CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(18, 0); // Original
+            CURRENT_LOCAL_DATE_TIME = LocalDate.now().atTime(17, 0);
             App.START_DATE = CURRENT_LOCAL_DATE_TIME.toLocalDate();
             ForexDayType dayType = ForexDayType.determineDayTypeForLocalDate(CURRENT_LOCAL_DATE_TIME.toLocalDate());
             if (dayType == ForexDayType.OFF_DAY) {
                 throw new RuntimeException("Unexpected day type. OFF_DAY should never be in the CURRENT_LOCAL_DATE_TIME");
             }
-            CURRENT_CANDLE_MAX = dayType == ForexDayType.GOOD_DAY ? 23 : DateFileService.getForexHoursForDate(CURRENT_LOCAL_DATE_TIME.toLocalDate());
+//            CURRENT_CANDLE_MAX = dayType == ForexDayType.GOOD_DAY ? 23 : DateFileService.getForexHoursForDate(CURRENT_LOCAL_DATE_TIME.toLocalDate()); // Original
+            CURRENT_CANDLE_MAX = dayType == ForexDayType.GOOD_DAY ? 23 : null; // Original
 
             DEBUG_FOLDER_PATH = createFolderInPath(targetDirectoryPath, "Debug");
 
@@ -211,7 +217,8 @@ public class ScreenshotService {
             }
         }
 
-        int imageId = InstanceCounterService.getAndIncrementHOURLY_1_INSTANCE_COUNT();
+//        int imageId = InstanceCounterService.getAndIncrementHOURLY_1_INSTANCE_COUNT(); // Original
+        int imageId = 0;
         // 0. If it's first screenshot in the day 6-7PM
         if (CURRENT_CANDLE == 1) {
             copyFileToOtherPath(imageFile, DEBUG_FOLDER_PATH + File.separator + determineFileNameForHourly1Type(imageId));
@@ -232,13 +239,15 @@ public class ScreenshotService {
 
     private static void processFourHourImage(File imageFile, String targetDirectoryPath) {
         if (CURRENT_WEEK_START_LOCAL_DATE == null) { // is first run of the app
-            LocalDate currentDate = DateFileService.getDateFromFile();
+//            LocalDate currentDate = DateFileService.getDateFromFile(); // Original
+            LocalDate currentDate = App.LATEST_DATE; // DateFileService.getDateFromFile(); // Original
             if (!currentDate.getDayOfWeek().equals(DayOfWeek.MONDAY)) {
                 CURRENT_WEEK_START_LOCAL_DATE = currentDate.minusDays(currentDate.getDayOfWeek().getValue() - 1);
             }
         }
         if (CURRENT_CANDLE == 1) {
-            CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(17, 0);
+            //            CURRENT_LOCAL_DATE_TIME = DateFileService.getDateFromFile().atTime(18, 0); // Original
+            CURRENT_LOCAL_DATE_TIME = LocalDate.now().atTime(17, 0);
             CURRENT_DAY_OF_WEEK = CURRENT_LOCAL_DATE_TIME.getDayOfWeek();
             CURRENT_DATE_TIME_OF_WEEK = CURRENT_LOCAL_DATE_TIME;
             App.START_DATE = CURRENT_LOCAL_DATE_TIME.toLocalDate();

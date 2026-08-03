@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Clipboard;
+import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.time.LocalDate;
 import java.time.DayOfWeek;
@@ -32,7 +33,8 @@ public class UserInterface extends JFrame {
     // Currency list items.
     private static final String[] CURRENCY_CODES = {
             "NASUSD", "OIL", "U30USD", "SPXUSD", "GOLD",
-            "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER"
+            "EURUSD", "USDCAD", "GBPUSD", "AUDUSD", "USDJPY", "SILVER", "EURNZD", "AUDJPY","GBPAUD", "USDCHF",
+            "EURJPY", "GBPJPY", "EURCAD", "BTCUSD"
     };
 
     private final JRadioButton[] currencyRadioButtons;
@@ -43,6 +45,7 @@ public class UserInterface extends JFrame {
     private final JRadioButton wednesdayButton;
     private final JRadioButton thursdayButton;
     private final JRadioButton fridayButton;
+    private final JButton addArrowButton = new JButton("Add Arrow");
 
     public UserInterface() {
         setTitle("Forex Screenshot UI");
@@ -89,21 +92,29 @@ public class UserInterface extends JFrame {
         JButton dailyLatestButton        = new JButton("Daily Latest");
         JButton fiveMinuteLatestButton   = new JButton("Five Minute Latest");
         JButton fifteenMinuteLatestButton= new JButton("Fifteen Minute Latest");
+        JButton hourlyLatestButton       = new JButton("H1");
+        JButton h4LatestButton           = new JButton("H4");
         JButton oneMinuteLatestButton    = new JButton("One Minute Latest");
         JButton pickDateButton           = new JButton("Pick Date");
         JButton yesterdayButton          = new JButton("Yesterday");
         JButton oneDayForwardButton      = new JButton("One Day Forward");
         JButton goBackOneDayButton       = new JButton("Go Back One Day");
+        JButton weeklyLatest             = new JButton("Weekly (Mon-Fri)");
+
 
         JPanel actionButtonPanel = new JPanel();
         actionButtonPanel.add(dailyLatestButton);
         actionButtonPanel.add(fiveMinuteLatestButton);
+        actionButtonPanel.add(hourlyLatestButton);
+        actionButtonPanel.add(h4LatestButton);
         actionButtonPanel.add(fifteenMinuteLatestButton);
         actionButtonPanel.add(oneMinuteLatestButton);
         actionButtonPanel.add(pickDateButton);
         actionButtonPanel.add(yesterdayButton);
         actionButtonPanel.add(oneDayForwardButton);
         actionButtonPanel.add(goBackOneDayButton);
+        actionButtonPanel.add(weeklyLatest);
+        actionButtonPanel.add(addArrowButton);
 
         /*──────────────────────────────
          * Selected‑date label + copy
@@ -221,7 +232,10 @@ public class UserInterface extends JFrame {
          *──────────────────────────────*/
         pickDateButton.addActionListener(e -> pickDate());
         dailyLatestButton.addActionListener(e -> processDailyLatest());
+        weeklyLatest.addActionListener(e -> processWeeklyLatest());
         fiveMinuteLatestButton.addActionListener(e -> processFiveMinuteLatest());
+        hourlyLatestButton.addActionListener(e -> processOneHourLatest());
+        h4LatestButton.addActionListener(e -> processFourHourLatest());
         fifteenMinuteLatestButton.addActionListener(e -> processFifteenMinuteLatest());
         oneMinuteLatestButton.addActionListener(e -> processOneMinuteLatest());
 
@@ -263,11 +277,13 @@ public class UserInterface extends JFrame {
         backButton.addActionListener   (e -> { pickedDate = pickedDate.minusWeeks(1); updateDateLabelAndWeekdaySelection(); });
         forwardButton.addActionListener(e -> { pickedDate = pickedDate.plusWeeks(1);  updateDateLabelAndWeekdaySelection(); });
 
+
         /*──────────────────────────────
          * Initial sync
          *──────────────────────────────*/
         updateDateLabelAndWeekdaySelection();
     }
+
 
     /*──────────────────────────────
      * Helper methods
@@ -349,8 +365,22 @@ public class UserInterface extends JFrame {
                 App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
     }
 
+    private void processFourHourLatest() {
+        App.forexChartType = ForexChartType.FOUR_HOUR;
+        ScreenshotService.takeScreenshot(App.SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
+        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH,
+                App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
+    }
+
     private void processFiveMinuteLatest() {
         App.forexChartType = ForexChartType.FIVE_MIN_LATEST;
+        ScreenshotService.takeScreenshot(App.SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
+        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH,
+                App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
+    }
+
+    private void processOneHourLatest() {
+        App.forexChartType = ForexChartType.HOURLY_1;
         ScreenshotService.takeScreenshot(App.SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
         ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH,
                 App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
@@ -369,6 +399,59 @@ public class UserInterface extends JFrame {
         ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH,
                 App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
     }
+
+    private void processWeeklyLatest() {
+        App.forexChartType = ForexChartType.WEEKLY;
+        ScreenshotService.takeScreenshot(App.SOURCE_DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
+        ScreenshotService.processScreenshot(App.forexChartType, App.SOURCE_DIRECTORY_PATH,
+                App.TARGET_DIRECTORY_PATH, getSelectedCurrency());
+    }
+
+    /**
+     * Returns the Monday and Friday for the week that contains pickedDate.
+     * If pickedDate is on a weekend:
+     *   - Saturday -> shifted to Friday
+     *   - Sunday   -> shifted to Monday
+     */
+    private LocalDate[] getCurrentWeekMondayAndFriday() {
+        LocalDate base = pickedDate;
+
+        // Normalize weekends
+        switch (base.getDayOfWeek()) {
+            case SATURDAY -> base = base.minusDays(1); // Saturday -> Friday
+            case SUNDAY   -> base = base.plusDays(1);  // Sunday   -> Monday
+            default -> {
+                // leave as is
+            }
+        }
+
+        LocalDate monday = base.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate friday = monday.plusDays(4); // Monday + 4 days = Friday
+
+        return new LocalDate[]{ monday, friday };
+    }
+
+    /**
+     * Copies only the Monday and Friday of the current week to clipboard.
+     * Format: "MM-dd-yyyy EEEE" on separate lines.
+     */
+    private void copyCurrentWeekMondayAndFridayToClipboard() {
+        LocalDate[] range = getCurrentWeekMondayAndFriday();
+        LocalDate monday = range[0];
+        LocalDate friday = range[1];
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("MM-dd-yyyy EEEE");
+        StringBuilder sb = new StringBuilder();
+        sb.append(fmt.format(monday))
+                .append(System.lineSeparator())
+                .append(fmt.format(friday));
+
+        StringSelection selection = new StringSelection(sb.toString());
+        Toolkit.getDefaultToolkit()
+                .getSystemClipboard()
+                .setContents(selection, null);
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {

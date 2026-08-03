@@ -20,10 +20,10 @@ public enum ForexDayType {
 
     public static ForexDayType determineDayTypeForLocalDate(final LocalDate localDate) {
         if (DateFileService.forexOffDays.isEmpty()) {
-            DateFileService.initializeForexOffDays();
+//            DateFileService.initializeForexOffDays();
         }
         if (DateFileService.non23hdaysMap.isEmpty()) {
-            DateFileService.initializeNon23hDaysMap();
+//            DateFileService.initializeNon23hDaysMap();
         }
         if (DateFileService.forexOffDays.contains(localDate)) {
             return OFF_DAY;

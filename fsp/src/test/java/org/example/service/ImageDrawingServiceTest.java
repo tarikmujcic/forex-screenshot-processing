@@ -26,7 +26,7 @@ public class ImageDrawingServiceTest extends TestCase {
 
     public void testDrawWeeklyInfo() {
         File file = ScreenshotService.takeScreenshot(DIRECTORY_PATH, ScreenshotService.SCREENSHOT_FILE_NAME);
-        ImageDrawingService.drawWeeklyInfo(file, DIRECTORY_PATH);
-        DateFileService.determineAndWriteNextDate(ForexChartType.WEEKLY);
+        ImageDrawingService.drawWeeklyInfo(file, DIRECTORY_PATH, "USDJPY");
+//        DateFileService.determineAndWriteNextDate(ForexChartType.WEEKLY);
     }
 }
